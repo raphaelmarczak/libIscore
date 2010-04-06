@@ -1,0 +1,14 @@
+The libIscore library run under Mac OS X 10.4 10.5 and 10.6.
+
+Before compiling (using gcc 4.2 or earlier version), you will need to install:
+- libXml2 framework (http://www.explain.com.au/oss/libxml2xslt.html)
+- gecode-3.2.0 framework (http://www.gecode.org)
+- Qt (4.0 or earlier version) (http://qt.nokia.com/products/platform/qt-for-mac)
+
+Then type:
+make
+make install
+
+make install will copy the library libIscore.a in /usr/local/lib and the main header Engines.hpp in /usr/local/include/IScore. It will also copy the network plugins in /Library/Application\ Support/Virage/
+
+To know how to use and link with this library, please look at the example directory.

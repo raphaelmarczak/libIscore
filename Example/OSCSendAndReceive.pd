@@ -1,0 +1,25 @@
+#N canvas 319 219 774 367 10;
+#X obj 239 17 cnv 15 400 250 empty empty Send 10 12 0 14 -204800 -66577
+0;
+#X msg 484 206 [;
+#X msg 419 205 ];
+#X obj 435 178 t b a b;
+#X msg 291 97 disconnect;
+#X msg 291 75 connect localhost 7002;
+#X obj 455 243 sendOSC;
+#X obj 16 17 cnv 15 200 100 empty empty Receive 10 12 0 14 -261682
+-66577 0;
+#X obj 103 67 print rcvOSC;
+#X obj 103 43 dumpOSC 9998;
+#X obj 291 53 loadbang;
+#X msg 495 60 send /box2/start;
+#X connect 1 0 6 0;
+#X connect 2 0 6 0;
+#X connect 3 0 2 0;
+#X connect 3 1 6 0;
+#X connect 3 2 1 0;
+#X connect 4 0 6 0;
+#X connect 5 0 6 0;
+#X connect 9 0 8 0;
+#X connect 10 0 5 0;
+#X connect 11 0 3 0;

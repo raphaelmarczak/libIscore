@@ -1,0 +1,15 @@
+# ENVIRONMENT
+#env = Environment(CPPFLAGS='-DSO_REUSEPORT=15', LIBS=['pthread'])
+env = Environment(CPPFLAGS='-DSO_REUSEPORT=2', LIBS=['pthread'])
+
+# SOURCE FILES
+mincpp=Split('Minuit.cpp')
+minuit=Glob('Minuit/*.cpp')
+osccpp=Split('OSC.cpp')
+devicecpp=Split('Device.cpp')
+ip = Glob('NetworkCommunication/ip/*.cpp')
+osc = Glob('NetworkCommunication/osc/*.cpp')
+
+pluginMinuit=env.SharedLibrary('Plugins/Minuit',mincpp+minuit+ip+osc+devicecpp)
+pluginOSC=env.SharedLibrary('Plugins/OSC',osccpp+ip+osc+minuit+devicecpp)
+
