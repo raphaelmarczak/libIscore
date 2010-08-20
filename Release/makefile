@@ -9,7 +9,6 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir.mk
--include libController/subdir.mk
 -include StoryLine/subdir.mk
 -include EnginesPrivate/subdir.mk
 -include Editor/gecode-solver/subdir.mk

@@ -9,4 +9,4 @@ install:
 	cp Release/libIscore.a /usr/local/lib/
 	mkdir -p /usr/local/include/IScore
 	cp -R Includes/* /usr/local/include/IScore/
-	sh installPlugins.sh
+	#sh installPlugins.sh

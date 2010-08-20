@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -51,7 +51,7 @@ Solver::Solver()
 	_constraintsMap = new map<int, LinearConstraint*>;
 	_engine = new SearchEngine(_space);
 	_suggest = false;
-	
+
 	_maxModification = NO_MAX_MODIFICATION;
 }
 
@@ -74,12 +74,12 @@ Solver::~Solver()
 }
 
 // find the Gecode relation type corresponding to a binary relation
-IntRelType 
+IntRelType
 Solver::getGecodeRelType(int relType)
 {
 	IntRelType rt = IRT_EQ;
 
-	switch (relType) 
+	switch (relType)
 	{
 	case REL_EQ :
 		rt = IRT_EQ;
@@ -106,7 +106,7 @@ Solver::getGecodeRelType(int relType)
 }
 
 // find the lowest free integer ID for a constraint
-int 
+int
 Solver::findNewRelationID() const
 {
 	int newID = 0;
@@ -116,7 +116,7 @@ Solver::findNewRelationID() const
 }
 
 // find the lowest free integer ID for a variable
-int 
+int
 Solver::findNewVariableID() const
 {
 	int newID = 0;
@@ -125,21 +125,21 @@ Solver::findNewVariableID() const
 	return newID;
 }
 
-CustomSpace* 
+CustomSpace*
 Solver::getSpace() const
 {
 	return _space;
 }
 
 // find an IntegerVariable from its ID
-IntegerVariable * 
+IntegerVariable *
 Solver::varFromID(int varID) const
 {
 	return (_integerVariablesMap->find(varID))->second ;
 }
 
 // find a linearConstraint from its ID
-LinearConstraint * 
+LinearConstraint *
 Solver::constraintFromID(int constID) const
 {
 	return (_constraintsMap->find(constID))->second ;
@@ -150,7 +150,7 @@ Solver::addIntVar(int min, int max, int val, int weight)
 {
 	// to each abstract variable we associate 4 Gecode variable
 	// usefull to minimize the variations
-	int index = _space->addVariable(min, max); 
+	int index = _space->addVariable(min, max);
 	int pdelta = _space->addVariable(0, max);
 	int ndelta = _space->addVariable(0, max);
 	int total = _space->addVariable(min, max);
@@ -167,17 +167,17 @@ int
 Solver::setIntVar(int id, int min, int max, int val, int weight)
 {
 	//removeIntVar(id);
-	
+
 	// to each abstract variable we associate 4 Gecode variable
 	// usefull to minimize the variations
-	int index = _space->addVariable(min, max); 
+	int index = _space->addVariable(min, max);
 	int pdelta = _space->addVariable(0, max);
 	int ndelta = _space->addVariable(0, max);
 	int total = _space->addVariable(min, max);
 
 	// tha abstract variable, i.e. the variable for the solver user
 	IntegerVariable *newVar = new IntegerVariable(min, max, val, index, weight, pdelta, ndelta, total);
-	
+
 	(*_integerVariablesMap)[id] = newVar;
 
 	return id;
@@ -234,13 +234,13 @@ Solver::addConstraint(int *varsIDs, int *varsCoeffs, int nbVars, int relType, in
 
 	int newID = findNewRelationID();
 
-	// insert the constraint in the map	
+	// insert the constraint in the map
 	_constraintsMap->insert(pair<int, LinearConstraint*>(newID, newCst));
 
 	if (!mustCallSolver) {
 		return newID;
 	}
-	
+
 	if (updateVariablesValues())
 		return newID;
 
@@ -248,7 +248,7 @@ Solver::addConstraint(int *varsIDs, int *varsCoeffs, int nbVars, int relType, in
 	return -1;
 }
 
-bool 
+bool
 Solver::removeConstraint(int constID)
 {
 	map<int, LinearConstraint*>::iterator p = _constraintsMap->find(constID);
@@ -283,7 +283,7 @@ Solver::updateState()
 		} else {
 			v->adjustMinMax(_suggest);
 		}
-		
+
 
 		v->setIndex(_space->addVariable(v->getVal(), v->getVal()));
 		v->setPosDeltaIndex(_space->addVariable(0, v->getMax() - v->getVal() + 1));
@@ -308,23 +308,23 @@ Solver::updateState()
 
 		// add a delta variable for each beginning or length
 		int multiplier = 1;
-		
+
 		bool isStrong = false;
 
-		// give more weight to the edited variables	
+		// give more weight to the edited variables
 		if (_suggest)
 		{
 			for (unsigned int i=0; i<_strongVars->size(); i++)
-				if (_strongVars->at(i) == q->first)	
+				if (_strongVars->at(i) == q->first)
 				{
 					isStrong = true;
-					//multiplier = 10;	
+					//multiplier = 10;
 					break;
 				}
 		}
-		
+
 		IntVarArgs vars(4);
-		IntArgs coeffs(4); 
+		IntArgs coeffs(4);
 
 		if (isStrong) {
 			vars[0] = _space->getIntVar(currVar->getTotalIndex());
@@ -337,7 +337,7 @@ Solver::updateState()
 			coeffs[2] = -1;
 			coeffs[3] = 1;
 		} else {
-			// constraint : <initial or wanted value> + <positive delta> - <negative delta> = <optimal value> 
+			// constraint : <initial or wanted value> + <positive delta> - <negative delta> = <optimal value>
 			vars[0] = _space->getIntVar(currVar->getNegDeltaIndex());
 			vars[1] = _space->getIntVar(currVar->getPosDeltaIndex());
 			vars[2] = _space->getIntVar(currVar->getTotalIndex());
@@ -347,7 +347,7 @@ Solver::updateState()
 			coeffs[2] = 1;
 			coeffs[3] = -1;
 		}
-		
+
 		//TODO: avant "linear(_space, coeffs, vars, IRT_EQ, 0);"
 		linear(*_space, coeffs, vars, IRT_EQ, 0);
 
@@ -356,12 +356,12 @@ Solver::updateState()
 		{
 		//TODO: avant "expr = LinExpr(vars[0], currVar->getWeight()*multiplier);"
 			expr = LinExpr<Gecode::IntVar>(vars[0], currVar->getWeight()*multiplier);
-	
+
 			init = true;
-			
+
 			//TODO: avant "LinExpr tmp(vars[1], currVar->getWeight()*multiplier);"
 			LinExpr<Gecode::IntVar> tmp(vars[1], currVar->getWeight()*multiplier);
-			
+
 			//TODO : je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
 			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
 		}
@@ -369,13 +369,13 @@ Solver::updateState()
 		{
 			//TODO: avant "LinExpr tmp(vars[0], currVar->getWeight()*multiplier);"
 			LinExpr<Gecode::IntVar> tmp(vars[0], currVar->getWeight()*multiplier);
-			
+
 			//TODO: je ne sais pas : "expr = LinExpr<Gecode::IntVar>(expr, tmp, 1);"
 			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
-			
+
 			//TODO: avant "tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);"
 			tmp = LinExpr<Gecode::IntVar>(vars[1], currVar->getWeight()*multiplier);
-			
+
 			//TODO: je ne sas pas : "expr = LinExpr(expr, tmp, 1);"
 			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
 		}
@@ -386,25 +386,25 @@ Solver::updateState()
 }
 
 // edit some variables and try to reach the new values
-bool 
+bool
 Solver::suggestValues(int *varsIDs, int* values, int nbVars, int maxModification)
-{	
+{
 	_suggest = true;
-	
+
 	_maxModification = maxModification;
 
 	_strongVars = new vector<int>;
 
-	// distinction between edited variables and the other	
+	// distinction between edited variables and the other
 	for (int i=0; i<nbVars; i++)
 	{
 		map<int, IntegerVariable*>::iterator p = _integerVariablesMap->find(varsIDs[i]);
-		if (p == _integerVariablesMap->end()) 
+		if (p == _integerVariablesMap->end())
 		{
 			return false;
 		}
-		else 
-		{	
+		else
+		{
 			(p->second)->updateValue(values[i]);
 			_strongVars->push_back(varsIDs[i]);
 		}
@@ -429,7 +429,7 @@ Solver::updateVariablesValues()
 	if (result == NULL) {
 		return false;
 	}
-	
+
 
 	if (_space)
 	{
@@ -469,9 +469,9 @@ Solver::run()
 
 	Search::TimeStop* ts = new Search::TimeStop(100);
 	Search::Options o;
-	
+
 	o.stop = ts;
-	
+
 	_engine = new SearchEngine(_space, o);
 
 	CustomSpace *last = NULL;
@@ -493,7 +493,7 @@ Solver::run()
 		last = (CustomSpace*)ex->clone(false);
 		delete(ex);
 	}
-	
+
 	delete ts;
 
 	return last;
@@ -506,7 +506,7 @@ Solver::getMemoryPeak()
 	return 0;
 }
 
-int 
+int
 Solver::getVariableValue(int varID ) const
 {
 	IntegerVariable *var = varFromID(varID);

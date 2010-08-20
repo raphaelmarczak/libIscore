@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -72,14 +72,43 @@ int Editor::scenarioSize()
 unsigned int Editor::addBox(int boxBeginPos, int boxLength, unsigned int motherId)
 {
 	if (motherId == NO_ID) {
-		m_mainCSP->addBox(m_nextBoxId, boxBeginPos, boxLength, motherId, boxLength);
-		m_boxIdToContainingCSP[m_nextBoxId] = m_mainCSP;
+		if (m_boxIdToContainingCSP.find(ROOT_BOX_ID) == m_boxIdToContainingCSP.end()) {
+			m_mainCSP->addBox(m_nextBoxId, boxBeginPos, boxLength, motherId, boxLength);
+			m_boxIdToContainingCSP[m_nextBoxId] = m_mainCSP;
+		}
+		else
+		{
+			return NO_ID;
+		}
 	} else {
 		ConstrainedBox* motherBox = getBoxById(motherId);
-		CSP* motherCSP = motherBox->getCSP();
 
-		motherCSP->addBox(m_nextBoxId, boxBeginPos, boxLength, motherId, motherBox->getBeginMax());
-		m_boxIdToContainingCSP[m_nextBoxId] = motherCSP;
+		if ((boxBeginPos < motherBox->lengthValue()) && (boxBeginPos + boxLength) < motherBox->lengthValue()) {
+			CSP* motherCSP = motherBox->getCSP();
+
+			motherCSP->addBox(m_nextBoxId, boxBeginPos, boxLength, motherId, motherBox->lengthValue());
+			m_boxIdToContainingCSP[m_nextBoxId] = motherCSP;
+
+			motherCSP->getBoxById(m_nextBoxId)->setMother(motherBox);
+
+			if (motherId != ROOT_BOX_ID) {
+				if (motherBox->getHierarchyRelationId() == NO_ID) {
+					std::vector<unsigned int> movedBox;
+
+					unsigned int hierarchyRelation = addAntPostRelation(motherId, BEGIN_CONTROL_POINT_INDEX,
+																		motherId, END_CONTROL_POINT_INDEX,
+																		ANTPOST_ANTERIORITY,
+																		motherBox->lengthValue(), motherBox->lengthValue(),
+																		movedBox);
+
+					std::cout << motherId << " add relation " << hierarchyRelation << std::endl;
+
+					motherBox->setHierarchyInformations(hierarchyRelation);
+				}
+			}
+		} else {
+			return NO_ID;
+		}
 	}
 
 	++m_nextBoxId;
@@ -89,19 +118,67 @@ unsigned int Editor::addBox(int boxBeginPos, int boxLength, unsigned int motherI
 
 void Editor::removeBox(unsigned int boxId)
 {
-	CSP* containingCSP = m_boxIdToContainingCSP[boxId];
+	if (m_boxIdToContainingCSP.find(boxId) != m_boxIdToContainingCSP.end()) {
+		CSP* containingCSP = m_boxIdToContainingCSP[boxId];
+		ConstrainedBox* currentBox = containingCSP->getBoxById(boxId);
+		ConstrainedBox* mother = currentBox->mother();
+		std::vector<unsigned int> boxesId;
+		std::vector<unsigned int> relationId;
+		std::vector<unsigned int> triggerId;
 
-	containingCSP->removeBox(boxId);
+
+		CSP* boxCSP = currentBox->getCSP();
+
+		if (boxCSP != NULL) {
+			boxCSP->getAllBoxesId(boxesId);
+
+			for (unsigned int i = 0; i < boxesId.size(); ++i) {
+				removeBox(boxesId[i]);
+			}
+		}
+
+		containingCSP->getAllBoxesId(boxesId);
+
+		if (boxesId.size() == 0) {
+			unsigned int motherHierarchyRelationId = mother->getHierarchyRelationId();
+
+			if (motherHierarchyRelationId != NO_ID) {
+				if (m_boxIdToContainingCSP.find(mother->getId()) != m_boxIdToContainingCSP.end()) {
+					CSP* motherCSP = m_boxIdToContainingCSP[mother->getId()];
+					motherCSP->removeTemporalRelation(motherHierarchyRelationId);
+				}
+			}
+		}
+
+		containingCSP->removeBox(boxId, relationId, triggerId);
+
+		for (unsigned int i = 0; i < relationId.size(); ++i) {
+			removeTemporalRelation(relationId[i]);
+		}
+
+		for (unsigned int i = 0; i < triggerId.size(); ++i) {
+			removeTriggerPoint(triggerId[i]);
+		}
+
+		m_boxIdToContainingCSP.erase(boxId);
+	}
 }
 
-unsigned int Editor::addAntPostRelation(unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>* movedBoxes)
+unsigned int Editor::addAntPostRelation(unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>& movedBoxes)
 {
+	CSP* containingCSP1 = m_boxIdToContainingCSP[boxId1];
+	CSP* containingCSP2 = m_boxIdToContainingCSP[boxId2];
+
+	if (containingCSP1 != containingCSP2) {
+		return NO_ID;
+	}
+
 	if (isAntPostRelationAlreadyExist(boxId1, controlPoint1, boxId2, controlPoint2)) {
 		return NO_ID;
 	} else {
-		CSP* containingCSP = m_boxIdToContainingCSP[boxId1];
-		containingCSP->addAntPostRelation(m_nextRelationId, boxId1, controlPoint1, boxId2, controlPoint2, type, minBound, maxBound, movedBoxes);
-		m_relationIdToContainingCSP[m_nextRelationId]=containingCSP;
+
+		containingCSP1->addAntPostRelation(m_nextRelationId, boxId1, controlPoint1, boxId2, controlPoint2, type, minBound, maxBound, movedBoxes);
+		m_relationIdToContainingCSP[m_nextRelationId]=containingCSP1;
 
 		++m_nextRelationId;
 
@@ -109,26 +186,39 @@ unsigned int Editor::addAntPostRelation(unsigned int boxId1, unsigned int contro
 	}
 }
 
-void Editor::changeAntPostRelationBounds(unsigned int relationId, int minBound, int maxBound, vector<unsigned int>* movedBoxes)
+void Editor::changeAntPostRelationBounds(unsigned int relationId, int minBound, int maxBound, vector<unsigned int>& movedBoxes)
 {
     unsigned int box1Id = getRelationFirstBoxId(relationId);
 	unsigned int cp1 = getRelationFirstControlPointIndex(relationId);
 	unsigned int box2Id = getRelationSecondBoxId(relationId);
 	unsigned int cp2 = getRelationSecondControlPointIndex(relationId);
-	CSP* containingCSP = m_relationIdToContainingCSP[relationId];
 
-	TemporalRelationType type = containingCSP->getAntPostRelationById(relationId)->antPostType();
+	if (m_relationIdToContainingCSP.find(relationId) != m_relationIdToContainingCSP.end()) {
+		CSP* containingCSP = m_relationIdToContainingCSP[relationId];
 
-	removeTemporalRelation(relationId);
+		AntPostRelation* relation = containingCSP->getAntPostRelationById(relationId);
 
-	containingCSP->addAntPostRelation(relationId, box1Id, cp1, box2Id, cp2, type, minBound, maxBound, movedBoxes);
+		if (relation != NULL) {
+			TemporalRelationType type = containingCSP->getAntPostRelationById(relationId)->antPostType();
+
+			removeTemporalRelation(relationId, false);
+
+			containingCSP->addAntPostRelation(relationId, box1Id, cp1, box2Id, cp2, type, minBound, maxBound, movedBoxes);
+		}
+	}
 }
 
-void Editor::removeTemporalRelation(unsigned int relationId)
+void Editor::removeTemporalRelation(unsigned int relationId, bool removeFromCSPMap)
 {
-	CSP* containingCSP = m_relationIdToContainingCSP[relationId];
+	if (m_relationIdToContainingCSP.find(relationId) != m_relationIdToContainingCSP.end()) {
+		CSP* containingCSP = m_relationIdToContainingCSP[relationId];
 
-	containingCSP->removeTemporalRelation(relationId);
+		containingCSP->removeTemporalRelation(relationId);
+
+		if (removeFromCSPMap) {
+			m_relationIdToContainingCSP.erase(relationId);
+		}
+	}
 }
 
 bool Editor::isAntPostRelationAlreadyExist(unsigned int boxId1, unsigned int controlPoint1Index, unsigned int boxId2, unsigned int controlPoint2Index)
@@ -137,7 +227,7 @@ bool Editor::isAntPostRelationAlreadyExist(unsigned int boxId1, unsigned int con
 	CSP* containingCSP2 = m_boxIdToContainingCSP[boxId2];
 
 	if (containingCSP1 != containingCSP2) {
-		throw new IllegalArgumentException();
+		return false;
 	}
 
 	ControlPoint* cp1 = containingCSP1->getBoxById(boxId1)->getControlPoint(controlPoint1Index);
@@ -202,12 +292,69 @@ unsigned int Editor::getRelationSecondControlPointIndex(unsigned int relationId)
 	return currentControlPoint->getId();
 }
 
-bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int>* movedBoxes, int maxModification)
+int Editor::getRelationMinBound(unsigned int relationId)
+{
+	CSP* containingCSP = m_relationIdToContainingCSP[relationId];
+	AntPostRelation* relation = containingCSP->getAntPostRelationById(relationId);
+
+	if (relation == NULL) {
+		return NO_BOUND;
+	}
+
+	return relation->minBound();
+}
+
+int Editor::getRelationMaxBound(unsigned int relationId)
+{
+	CSP* containingCSP = m_relationIdToContainingCSP[relationId];
+	AntPostRelation* relation = containingCSP->getAntPostRelationById(relationId);
+
+	if (relation == NULL) {
+		return NO_BOUND;
+	}
+
+	return relation->maxBound();
+}
+
+bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes, int maxModification)
 {
 	CSP* containingCSP = m_boxIdToContainingCSP[boxId];
+	ConstrainedBox* currentBox = containingCSP->getBoxById(boxId);
+
+	ConstrainedBox* motherBox = currentBox->mother();
+
+//	if ((x > motherBox->lengthValue()) || (y > motherBox->lengthValue())) {
+//		return false;
+//	}
+
+	containingCSP->changeAllBoxMaxSceneWidth(motherBox->lengthValue());
+
+	CSP* boxCSP = currentBox->getCSP();
 
 	int previousX = getBeginValue(boxId);
 	int previousY = getEndValue(boxId);
+
+	if (boxCSP != NULL) {
+		std::vector<unsigned int> boxesId;
+		boxCSP->getAllBoxesId(boxesId);
+
+		if (boxesId.size() != 0) {
+			unsigned int maxValue = 0;
+
+			for (unsigned int i = 0; i < boxesId.size(); ++i) {
+				unsigned int currentChildBoxEnd = boxCSP->getEndValue(boxesId[i]);
+
+				if(currentChildBoxEnd > maxValue) {
+					maxValue = currentChildBoxEnd;
+				}
+			}
+
+			if ((unsigned int)(y - x) < maxValue) {
+				return false;
+			}
+		}
+	}
+
 
 	int modificationX = abs(previousX - x);
 	int modificationY = abs(previousY - y);
@@ -220,11 +367,34 @@ bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int
 		maxModification = modificationY;
 	}
 
+
+	unsigned int hierarchyRelation = currentBox->getHierarchyRelationId();
+
+	if (hierarchyRelation != NO_ID) {
+		containingCSP->removeTemporalRelation(hierarchyRelation);
+	}
+
+	std::vector<unsigned int> hierarchyRelationMovedBoxes;
+
 	if(containingCSP->performMoving(boxId, x, y, movedBoxes, maxModification)) {
+		if (hierarchyRelation != NO_ID) {
+			containingCSP->addAntPostRelation(hierarchyRelation,
+											  boxId, BEGIN_CONTROL_POINT_INDEX,
+											  boxId, END_CONTROL_POINT_INDEX,
+											  ANTPOST_ANTERIORITY,
+											  currentBox->lengthValue(),
+											  currentBox->lengthValue(),
+											  hierarchyRelationMovedBoxes,
+											  false);
+		}
+		movedBoxes.clear();
+		getAllBoxesId(movedBoxes);
 		return true;
 	} else {
 		// put back the CSP into its previous state.
 		containingCSP->performMoving(boxId, previousX, previousY, movedBoxes, maxModification);
+		movedBoxes.clear();
+		getAllBoxesId(movedBoxes);
 		return false;
 	}
 }
@@ -305,9 +475,12 @@ Editor::addTriggerPoint(unsigned int containingBoxId)
 void
 Editor::removeTriggerPoint(unsigned int triggerId)
 {
-	CSP* containingCSP = m_triggerIdToContainingCSP[triggerId];
+	if (m_triggerIdToContainingCSP.find(triggerId) != m_triggerIdToContainingCSP.end()) {
+		CSP* containingCSP = m_triggerIdToContainingCSP[triggerId];
 
-	containingCSP->removeTriggerPoint(triggerId);
+		containingCSP->removeTriggerPoint(triggerId);
+		m_triggerIdToContainingCSP.erase(triggerId);
+	}
 }
 
 bool
@@ -388,12 +561,14 @@ bool Editor::getTriggerPointMuteState(unsigned int triggerId)
 	return containingCSP->getTriggerPoint(triggerId)->isMute();
 }
 
-void Editor::getAllBoxesId(vector<unsigned int>* boxesID)
+void Editor::getAllBoxesId(vector<unsigned int>& boxesID)
 {
 	std::map<unsigned int, CSP*>::iterator it = m_boxIdToContainingCSP.begin();
 
 	while (it != m_boxIdToContainingCSP.end()) {
-		boxesID->push_back(it->first);
+		if (it->first != ROOT_BOX_ID) {
+			boxesID.push_back(it->first);
+		}
 		it ++;
 	}
 
@@ -401,24 +576,24 @@ void Editor::getAllBoxesId(vector<unsigned int>* boxesID)
 //	m_mainCSP->getAllBoxesId(boxesID);
 }
 
-void Editor::getAllAntPostRelationsId(vector<unsigned int>* relationsID)
+void Editor::getAllAntPostRelationsId(vector<unsigned int>& relationsID)
 {
 	std::map<unsigned int, CSP*>::iterator it = m_relationIdToContainingCSP.begin();
 
 	while (it != m_relationIdToContainingCSP.end()) {
-		relationsID->push_back(it->first);
+		relationsID.push_back(it->first);
 
 		it++;
 	}
 	//m_mainCSP->getAllAntPostRelationsId(relationsID);
 }
 
-void Editor::getAllTriggersId(vector<unsigned int>* triggersID)
+void Editor::getAllTriggersId(vector<unsigned int>& triggersID)
 {
 	std::map<unsigned int, CSP*>::iterator it = m_triggerIdToContainingCSP.begin();
 
 	while (it != m_triggerIdToContainingCSP.end()) {
-		triggersID->push_back(it->first);
+		triggersID.push_back(it->first);
 
 		it++;
 	}
@@ -446,9 +621,9 @@ Editor::load(xmlNodePtr root)
 	std::vector<unsigned int> relationsId;
 	std::vector<unsigned int> triggersId;
 
-	getAllBoxesId(&boxesId);
-	getAllAntPostRelationsId(&relationsId);
-	getAllTriggersId(&triggersId);
+	getAllBoxesId(boxesId);
+	getAllAntPostRelationsId(relationsId);
+	getAllTriggersId(triggersId);
 
 	std::vector<unsigned int>::iterator maxBoxId = std::max_element(boxesId.begin(), boxesId.end());
 	std::vector<unsigned int>::iterator maxRelationId = std::max_element(relationsId.begin(), relationsId.end());

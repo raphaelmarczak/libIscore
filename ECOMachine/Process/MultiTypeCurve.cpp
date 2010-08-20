@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -129,12 +129,14 @@ void MultiTypeCurve::computeFunction(int beginVal, int endVal, int duration, int
 				currentType = m_sectionType[currentSection];
 			}
 
-			//std::cout << std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) << "<-----" << std::endl;
+			if (xDiff != 0) {
+				//std::cout << std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) << "<-----" << std::endl;
 
-			m_intCurve.push_back((int) y[currentSection] + std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) * yDiff);
-			m_wasNotPreviouslyAsked.push_back(true);
+				m_intCurve.push_back((int) y[currentSection] + std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) * yDiff);
+				m_wasNotPreviouslyAsked.push_back(true);
 
-			++currentSample;
+				++currentSample;
+			}
 		}
 	}
 
@@ -196,7 +198,7 @@ void MultiTypeCurve::computeFunction(float beginVal, float endVal, int duration,
 
 		x.push_back(nbSamples);
 		y.push_back(endVal);
-		
+
 		unsigned int currentSample = 0;
 		unsigned int currentSection = -1;
 
@@ -216,14 +218,17 @@ void MultiTypeCurve::computeFunction(float beginVal, float endVal, int duration,
 				currentType = m_sectionType[currentSection];
 			}
 
-//			std::cout << std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) << "<-----" << std::endl;
-//			std::cout << yDiff << std::endl;;
-			
-			m_floatCurve.push_back((float) y[currentSection] + std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) * yDiff);
-			
-			m_wasNotPreviouslyAsked.push_back(true);
+			if (xDiff != 0) {
 
-			++currentSample;
+				//			std::cout << std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) << "<-----" << std::endl;
+				//			std::cout << yDiff << std::endl;;
+
+				m_floatCurve.push_back((float) y[currentSection] + std::pow((float)((float)(currentSample - x[currentSection])/(float)xDiff), (float)currentCoeff) * yDiff);
+
+				m_wasNotPreviouslyAsked.push_back(true);
+
+				++currentSample;
+			}
 		}
 	}
 
@@ -431,12 +436,12 @@ bool MultiTypeCurve::setSections(std::vector<float> percent, std::vector<float> 
 	return true;
 }
 
-void MultiTypeCurve::getSections(std::vector<float>* percent, std::vector<float>* y, std::vector<short>* sectionType, std::vector<float>* coeff)
+void MultiTypeCurve::getSections(std::vector<float>& percent, std::vector<float>& y, std::vector<short>& sectionType, std::vector<float>& coeff)
 {
-	*percent = m_sectionPercent;
-	*y = m_sectionY;
-	*sectionType = m_sectionType;
-	*coeff = m_sectionCoeff;
+	percent = m_sectionPercent;
+	y = m_sectionY;
+	sectionType = m_sectionType;
+	coeff = m_sectionCoeff;
 }
 
 short MultiTypeCurve::getType()

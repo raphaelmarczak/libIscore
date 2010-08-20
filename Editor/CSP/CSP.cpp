@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -120,7 +120,7 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 
 	if (motherId != NO_ID) {
 //		ConstrainedBox* mother = getBoxById(motherId);
-//		newBox->setMother(mother, addBoundingRelation(mother, newBox));
+//		newBox->setMother(mother);
 //		mother->addChild(newBox);
 	}
 
@@ -134,9 +134,12 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 
 
 void
-CSP::removeBox(unsigned int boxId)
+CSP::removeBox(unsigned int boxId, std::vector<unsigned int>& relationsRemoved, std::vector<unsigned int>& triggersRemoved)
 {
 	ConstrainedBox* cedBox = getBoxById(boxId);
+
+	relationsRemoved.clear();
+	triggersRemoved.clear();
 
 	/*
      remove cedBox from the boxes hierarchy
@@ -161,6 +164,8 @@ CSP::removeBox(unsigned int boxId)
 	vector<BinaryTemporalRelation*> *relToRemove = links(cedBox);
 	for (vector<BinaryTemporalRelation*>::iterator it = relToRemove->begin() ; it != relToRemove->end() ; it++)
 	{
+		unsigned int relationId = (*it)->getId();
+		relationsRemoved.push_back(relationId);
 		removeTemporalRelation((*it));
 		delete (*it);
 	}
@@ -174,7 +179,9 @@ CSP::removeBox(unsigned int boxId)
 		ControlPoint* currentControlPoint = cedBox->getControlPoint(controlPointID->at(i));
 
 		if(currentControlPoint->getTriggerPoint() != NULL) {
-			currentControlPoint->getTriggerPoint()->removeRelatedControlPoint();
+			TriggerPoint* currentTriggerPoint = currentControlPoint->getTriggerPoint();
+			triggersRemoved.push_back(currentTriggerPoint->getTriggerId());
+			currentTriggerPoint->removeRelatedControlPoint();
 		}
 
 		relToRemove = links(currentControlPoint);
@@ -203,7 +210,7 @@ CSP::removeBox(unsigned int boxId)
 }
 
 unsigned int
-CSP::addAntPostRelation(unsigned int relationId, unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>* movedBoxes, bool mustCallSolver)
+CSP::addAntPostRelation(unsigned int relationId, unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>& movedBoxes, bool mustCallSolver)
 {
 	if ((minBound != NO_BOUND) && (maxBound != NO_BOUND) && (minBound>maxBound)) {
 		throw std::invalid_argument("CSP: minBound must be inferior to maxBound");
@@ -285,16 +292,16 @@ CSP::addAntPostRelation(unsigned int relationId, unsigned int boxId1, unsigned i
 		delete varsIDs;
 		delete varsCoeffs;
 
-		if (movedBoxes != NULL) {
-			movedBoxes->clear();
 
-			map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
-			while (it != _cedEntities->end())
-			{
-				movedBoxes->push_back(it->first);
-				it++;
-			}
+		movedBoxes.clear();
+
+		map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
+		while (it != _cedEntities->end())
+		{
+			movedBoxes.push_back(it->first);
+			it++;
 		}
+
 
 		if (newAntPost == NULL) {
 			return NO_ID;
@@ -406,6 +413,7 @@ CSP::removeTemporalRelation(unsigned int relationId)
 			ent2->removeRelatedEntity(ent1);
 
 			_temporalRelations->erase(it);
+
 			break;
 		}
 		else it++;
@@ -420,7 +428,7 @@ CSP::removeTemporalRelation(unsigned int relationId)
 //}
 
 bool
-CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>* movedBoxes, unsigned int maxModification)
+CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification)
 {
 	int *varsIDs = new int[3];
 	int *values = new int[3];
@@ -454,14 +462,14 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>* mov
 	delete[] varsIDs;
 	delete[] values;
 
-	movedBoxes->clear();
+	movedBoxes.clear();
 	if (validSolution) {
-		updateFromSolver();
+		updateFromSolver(); //TODO: la clef est ici !!!
 
 		map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
 		while (it != _cedEntities->end())
 		{
-			movedBoxes->push_back(it->first);
+			movedBoxes.push_back(it->first);
 			it++;
 		}
 
@@ -541,8 +549,8 @@ CSP::getLastControlPointIndex(unsigned int boxId)
 }
 
 void
-CSP::getTriggerPointMap(map<unsigned int, TriggerPoint *>* triggerPoints) {
-	*triggerPoints = *_triggerPoints;
+CSP::getTriggerPointMap(map<unsigned int, TriggerPoint *>& triggerPoints) {
+	triggerPoints = *_triggerPoints;
 }
 
 TriggerPoint*
@@ -573,8 +581,10 @@ CSP::addTriggerPoint(unsigned int triggerId)
 void
 CSP::removeTriggerPoint(unsigned int triggerId)
 {
-	removeTriggerPointRelatedControlPoint(triggerId);
-	_triggerPoints->erase(triggerId);
+	if (_triggerPoints->find(triggerId) != _triggerPoints->end()) {
+		removeTriggerPointRelatedControlPoint(triggerId);
+		_triggerPoints->erase(triggerId);
+	}
 }
 
 bool
@@ -603,52 +613,52 @@ CSP::getTriggerPointMessage(unsigned int triggerId)
 
 
 void
-CSP::getAllBoxesId(vector<unsigned int>* boxesID)
+CSP::getAllBoxesId(vector<unsigned int>& boxesID)
 {
-	boxesID->clear();
+	boxesID.clear();
 
 	map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
 	while (it != _cedEntities->end())
 	{
-		boxesID->push_back(it->first);
+		boxesID.push_back(it->first);
 		it++;
 	}
 }
 
 void
-CSP::getAllAntPostRelationsId(vector<unsigned int>* relationsID)
+CSP::getAllAntPostRelationsId(vector<unsigned int>& relationsID)
 {
-	relationsID->clear();
+	relationsID.clear();
 
 	for (unsigned int i = 0 ; i < _temporalRelations->size() ; ++i) {
 		if (dynamic_cast<AntPostRelation*>(_temporalRelations->at(i))) {
-			relationsID->push_back(_temporalRelations->at(i)->getId());
+			relationsID.push_back(_temporalRelations->at(i)->getId());
 		}
 	}
 }
 
 void
-CSP::getAllTriggersId(vector<unsigned int>* triggersID)
+CSP::getAllTriggersId(vector<unsigned int>& triggersID)
 {
-	triggersID->clear();
+	triggersID.clear();
 
 	map<unsigned int, TriggerPoint*>::iterator it  = _triggerPoints->begin();
 	while (it != _triggerPoints->end())
 	{
-		triggersID->push_back(it->first);
+		triggersID.push_back(it->first);
 		it++;
 	}
 }
 
 
 void
-CSP::getAllAntPostRelations(vector<AntPostRelation*>* antPostRelations)
+CSP::getAllAntPostRelations(vector<AntPostRelation*>& antPostRelations)
 {
-	antPostRelations->clear();
+	antPostRelations.clear();
 
 	for (unsigned int i = 0 ; i < _temporalRelations->size() ; ++i) {
 		if (dynamic_cast<AntPostRelation*>(_temporalRelations->at(i))) {
-			antPostRelations->push_back((AntPostRelation*)_temporalRelations->at(i));
+			antPostRelations.push_back((AntPostRelation*)_temporalRelations->at(i));
 		}
 	}
 }
@@ -656,20 +666,18 @@ CSP::getAllAntPostRelations(vector<AntPostRelation*>* antPostRelations)
 AntPostRelation*
 CSP::getAntPostRelationById(unsigned int relationID)
 {
-	vector<AntPostRelation*>* antPostRelations = new vector<AntPostRelation*>;
+	vector<AntPostRelation*> antPostRelations;
 
 	getAllAntPostRelations(antPostRelations);
 
-	for (unsigned int i = 0; i < antPostRelations->size(); ++i) {
-		if (antPostRelations->at(i)->getId() == relationID) {
-			AntPostRelation* transitionToReturn = antPostRelations->at(i);
+	for (unsigned int i = 0; i < antPostRelations.size(); ++i) {
+		if (antPostRelations[i]->getId() == relationID) {
+			AntPostRelation* transitionToReturn = antPostRelations[i];
 
-			delete antPostRelations;
 			return transitionToReturn;
 		}
 	}
 
-	delete antPostRelations;
 	return NULL;
 }
 
@@ -735,15 +743,15 @@ CSP::store(xmlNodePtr father)
 	xmlNodePtr relationsNode = NULL;
 	xmlNodePtr triggerNode = NULL;
 
-	vector<unsigned int>* boxesId = new vector<unsigned int>;
-	vector<AntPostRelation*>* antPostRelations = new vector<AntPostRelation*>;
+	vector<unsigned int> boxesId;
+	vector<AntPostRelation*> antPostRelations;
 
 	getAllBoxesId(boxesId);
 
 	boxesNode = xmlNewNode(NULL, BAD_CAST "BOXES");
 	xmlAddChild(father, boxesNode);
-	for (unsigned int i = 0 ; i < boxesId->size() ; ++i) {
-		getBoxById(boxesId->at(i))->store(boxesNode);
+	for (unsigned int i = 0 ; i < boxesId.size() ; ++i) {
+		getBoxById(boxesId[i])->store(boxesNode);
 	}
 
 	getAllAntPostRelations(antPostRelations);
@@ -751,8 +759,8 @@ CSP::store(xmlNodePtr father)
 	relationsNode = xmlNewNode(NULL, BAD_CAST "RELATIONS");
 	xmlAddChild(father, relationsNode);
 
-	for (unsigned int i = 0 ; i < antPostRelations->size() ; ++i) {
-		antPostRelations->at(i)->store(relationsNode);
+	for (unsigned int i = 0 ; i < antPostRelations.size() ; ++i) {
+		antPostRelations[i]->store(relationsNode);
 	}
 
 	triggerNode = xmlNewNode(NULL, BAD_CAST "TRIGGERPOINTS");
@@ -822,6 +830,10 @@ CSP::loadBoxes(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap,
 
 					ConstrainedBox* currentBox = getBoxById(m_boxId);
 
+					if (m_boxId != ROOT_BOX_ID) {
+						currentBox->setMother(motherBox);
+					}
+
 					xmlNodePtr xmlOptionalArgument = NULL;
 
 					for (xmlOptionalArgument = xmlBox->children; xmlOptionalArgument != NULL; xmlOptionalArgument = xmlOptionalArgument->next) {
@@ -890,10 +902,12 @@ CSP::loadRelations(xmlNodePtr root, std::map<unsigned int, CSP*>& relationsMap)
 						relationMaxBound = XMLConversion::xmlCharToInt(xmlRelationMaxBound);
 					}
 
+					std::vector<unsigned int> movedBoxes;
+
 					if (relationType == "anteriority") {
-						addAntPostRelation(relationId, relationFirstBoxId, relationFirstControlPointId, relationSecondBoxId, relationSecondControlPoinId, ANTPOST_ANTERIORITY, relationMinBound, relationMaxBound, NULL, false);
+						addAntPostRelation(relationId, relationFirstBoxId, relationFirstControlPointId, relationSecondBoxId, relationSecondControlPoinId, ANTPOST_ANTERIORITY, relationMinBound, relationMaxBound, movedBoxes, false);
 					} else {
-						addAntPostRelation(relationId, relationFirstBoxId, relationFirstControlPointId, relationSecondBoxId, relationSecondControlPoinId, ANTPOST_POSTERIORITY, relationMinBound, relationMaxBound, NULL, false);
+						addAntPostRelation(relationId, relationFirstBoxId, relationFirstControlPointId, relationSecondBoxId, relationSecondControlPoinId, ANTPOST_POSTERIORITY, relationMinBound, relationMaxBound, movedBoxes, false);
 					}
 
 					relationsMap[relationId] = this;
@@ -982,7 +996,7 @@ void CSP::changeAllBoxMaxSceneWidth(int newValue)
 	while (it != _cedEntities->end())
 	{
 		ConstrainedBox* currentBox = (ConstrainedBox*) it->second;
-	
+
 		currentBox->changeMax(_solver, newValue);
 		currentBox->getFirstControlPoint()->changeMax(_solver, newValue);
 		currentBox->getLastControlPoint()->changeMax(_solver, newValue);

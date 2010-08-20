@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -56,10 +56,16 @@ Transition::Transition(PetriNet* petriNet)
 m_endDate(PLUS_INFINITY), m_startAction(NULL), m_endAction(NULL)
 {
 	m_events.push_back(STATIC_EVENT);
+	m_mustWaitThePetriNetToEnd = false;
+	m_petriNetToEnd = NULL;
 }
 
 bool Transition::isStatic()
 {
+	if ((m_petriNetToEnd != NULL && m_mustWaitThePetriNetToEnd)) {
+		return false;
+	}
+
 	return ((m_events.size() > 0) && (m_events.back() == STATIC_EVENT));
 }
 
@@ -124,35 +130,35 @@ void Transition::merge(Transition* transitionToMerge)
 	for (unsigned int i = 0 ; i < transitionToMerge->m_externActions.size() ; ++i) {
 		m_externActions.push_back(transitionToMerge->m_externActions[i]);
 	}
-	
+
 	arcList mergeInGoingArcs = transitionToMerge->inGoingArcsOf();
 	arcList mergeOutGoingArcs = transitionToMerge->outGoingArcsOf();
-	
+
 	for (unsigned int i = 0; i < mergeInGoingArcs.size() ; ++i) {
 		Arc* currentArc = mergeInGoingArcs[i];
-		
+
 		ExtendedInt relativeMinValue = currentArc->getRelativeMinValue();
 		ExtendedInt relativeMaxValue = currentArc->getRelativeMaxValue();
 		ExtendedInt absoluteMinValue = currentArc->getAbsoluteMinValue();
 		ExtendedInt absoluteMaxValue = currentArc->getAbsoluteMaxValue();
-		
+
 		Place* inGoingPlace = (Place*) currentArc->getFrom();
-		
+
 		Arc* newArc = getPetriNet()->createArc(inGoingPlace, this);
 		newArc->changeAbsoluteTime(absoluteMinValue, absoluteMaxValue);
 		newArc->changeRelativeTime(relativeMinValue, relativeMaxValue);
-		
+
 		getPetriNet()->deleteArc(inGoingPlace, transitionToMerge);
 	}
-	
+
 	createBitArray();
-	
+
 	for (unsigned int i = 0; i < mergeOutGoingArcs.size() ; ++i) {
 		Arc* currentArc = mergeOutGoingArcs[i];
-		
+
 		Place* outGoingPlace = (Place*) currentArc->getTo();
 		getPetriNet()->createArc(this, outGoingPlace);
-		
+
 		getPetriNet()->deleteArc(transitionToMerge, outGoingPlace);
 	}
 }
@@ -391,6 +397,33 @@ ExtendedInt Transition::getStartDate()
 ExtendedInt Transition::getEndDate()
 {
 	return m_endDate;
+}
+
+void Transition::setPetriNetToEnd(PetriNet* petriNetToEnd)
+{
+	m_petriNetToEnd = petriNetToEnd;
+}
+
+void Transition::setMustWaitThePetriNetToEnd(bool mustWait)
+{
+	m_mustWaitThePetriNetToEnd = mustWait;
+}
+
+bool Transition::couldBeSensitize()
+{
+	if (m_mustWaitThePetriNetToEnd == false) {
+		return true;
+	}
+
+	if (m_petriNetToEnd == NULL) {
+		return true;
+	}
+
+	if (!m_petriNetToEnd->isRunning()) {
+		return true;
+	}
+
+	return false;
 }
 
 Transition::~Transition()

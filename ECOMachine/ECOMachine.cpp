@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -51,6 +51,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
 #include <algorithm>
 
 #include "ChangeTempo.hpp"
+#include "PetriNet/PetriNet.hpp"
 
 using namespace std;
 
@@ -59,14 +60,11 @@ void* ECOMachineMainFunction(void* threadArg)
 {
 	ECOMachine* ECO = (ECOMachine*) threadArg;
 
-	ECO->m_startPlace->produceTokens(1);
-	ECO->m_endPlace->consumeTokens(ECO->m_endPlace->nbOfTokens());
+	ECO->m_petriNet->launch();
 
-	while (ECO->m_endPlace->nbOfTokens() == 0 && !ECO->mustStop()) {
-		ECO->getPetriNet()->update();
+	while (ECO->m_petriNet->isRunning()) {
+		usleep(50);
 	}
-
-	ECO->m_isRunning = false;
 
 	if (ECO->m_isEcoMachineFinished != NULL) {
 		ECO->m_isEcoMachineFinished(ECO->m_isEcoMachineFinishedArg);
@@ -81,7 +79,13 @@ void crossAControlPointCallBack(void* arg)
 	ControlPointInformations* controlPointInformations = (ControlPointInformations*) arg;
 
 	if (controlPointInformations->m_crossAControlPointAction != NULL) {
-		controlPointInformations->m_crossAControlPointAction(controlPointInformations->m_boxId, controlPointInformations->m_controlPointIndex);
+		//std::cout << "CP : " << controlPointInformations->m_boxId << " " << controlPointInformations->m_controlPointIndex << std::endl;
+		controlPointInformations->m_crossAControlPointAction(controlPointInformations->m_boxId, controlPointInformations->m_controlPointIndex, controlPointInformations->m_processIdToStop);
+	}
+
+	for (unsigned int i = 0; i < controlPointInformations->m_processIdToStop.size(); ++i) {
+	//	std::cout << "Process " << controlPointInformations->m_processIdToStop[i] << " stopped" << std::endl;
+		controlPointInformations->m_ECOMachine->m_process[controlPointInformations->m_processIdToStop[i]]->changeState(ECOProcess::STOP);
 	}
 
 }
@@ -110,9 +114,7 @@ ECOMachine::ECOMachine()
 :m_lastEventNumber(1)
 {
 	m_petriNet = new PetriNet();
-	m_startPlace = NULL;
-	m_endPlace = NULL;
-	
+
 	m_gotoValue = 0;
 	m_currentSpeedFactor = 1;
 
@@ -124,8 +126,6 @@ ECOMachine::ECOMachine()
 	m_waitedTriggerPointMessageArg = NULL;
 
 	m_petriNet->addWaitedTriggerPointMessageAction(this, &waitedTriggerPointMessageCallBack);
-
-	m_isRunning = false;
 }
 
 ECOMachine::~ECOMachine()
@@ -156,7 +156,7 @@ bool ECOMachine::receiveNetworkMessage(std::string netMessage)
 	if(iter == m_fromNetworkMessagesToPetriMessages.end()) {
 		return false;
 	} else {
-		if (getPetriNet()->getUpdateFactor() != 0) {	
+		if (getPetriNet()->getUpdateFactor() != 0) {
 			m_petriNet->putAnEvent(m_fromNetworkMessagesToPetriMessages[netMessage]);
 		}
 		return true;
@@ -164,7 +164,7 @@ bool ECOMachine::receiveNetworkMessage(std::string netMessage)
 
 }
 
-void ECOMachine::newProcess(std::string type, unsigned int processId, Controller* controller)
+void ECOMachine::newProcess(std::string type, unsigned int processId, DeviceManager* controller)
 {
 	if (type == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND) {
 		m_process[processId] = new SendNetworkMessageProcess(processId, controller);
@@ -226,43 +226,74 @@ void ECOMachine::reset() {
 	}
 }
 
-void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToStartTriggerPoint)
+void ECOMachine::compileECO(std::map<unsigned int, StoryLine> hierarchyStoryLine,unsigned int timeToStartTriggerPoint)
 {
+	if (m_petriNet != NULL) {
+		delete m_petriNet;
+		m_petriNet = NULL;
+	}
+
+	std::vector<unsigned int> processIdToStop;
+
+	m_transitionToTriggerPointInformations.clear();
+	m_petriNet = compilePetriNet(hierarchyStoryLine[ROOT_BOX_ID], hierarchyStoryLine, processIdToStop, timeToStartTriggerPoint, &waitedTriggerPointMessageCallBack);
+
+//	if (waitedTriggerPointMessageCallBack != NULL) {
+//		m_petriNet->addWaitedTriggerPointMessageAction(this, &waitedTriggerPointMessageCallBack);
+//	}
+}
+
+PetriNet* ECOMachine::compilePetriNet(StoryLine storyLineToCompile,
+									  std::map<unsigned int, StoryLine> hierarchyStoryLine,
+									  std::vector<unsigned int>& processIdToStop,
+									  unsigned int timeToStartTriggerPoint,
+									  void(*triggerAction)(void*, bool, Transition*))
+{
+	PetriNet* petriNet = new PetriNet();
+
+	if (triggerAction != NULL) {
+		petriNet->addWaitedTriggerPointMessageAction(this, triggerAction);
+	}
+
 	ExtendedInt plusInfinity(PLUS_INFINITY, 0);
 	ExtendedInt minusInfinity(MINUS_INFINITY, 0);
 	ExtendedInt integer0(INTEGER, 0);
 
 	map<ControlPoint*, Transition*> controlPointToTransitionConversion;
-
-	m_transitionToTriggerPointInformations.clear();
+	map<Arc*, AntPostRelation*> arcToRelationConversion;
 
 	/********** FIRST COMPILATION PHASE **********
 	 * Relations are not taken into account.
 	 * All boxes are statically compiled.
 	 *********************************************/
-	m_startPlace = m_petriNet->createPlace();
-	m_startTransition = m_petriNet->createTransition();
-	Arc* startArc = m_petriNet->createArc(m_startPlace, m_startTransition);
+	Place* startPlace = petriNet->createPlace();
+	Transition* startTransition = petriNet->createTransition();
+	Arc* startArc = petriNet->createArc(startPlace, startTransition);
 
-	m_endPlace = m_petriNet->createPlace();
-	m_endTransition = m_petriNet->createTransition();
-	Arc* endArc = m_petriNet->createArc(m_endTransition, m_endPlace);
+	Place* endPlace = petriNet->createPlace();
+	Transition* endTransition = petriNet->createTransition();
+	Arc* endArc = petriNet->createArc(endTransition, endPlace);
+
+	petriNet->setStartPlace(startPlace);
+	petriNet->setEndPlace(endPlace);
 
 	startArc->changeRelativeTime(integer0, plusInfinity);
 	endArc->changeRelativeTime(integer0, plusInfinity);
 
-	for (unsigned int i = 0 ; i < storyLineToCompile->m_constrainedBoxes.size() ; ++i) {
-		Transition* previousTransition = m_startTransition;
-		ConstrainedBox* currentBox = storyLineToCompile->m_constrainedBoxes[i];
+	for (unsigned int i = 0 ; i < storyLineToCompile.m_constrainedBoxes.size() ; ++i) {
+		Transition* previousTransition = startTransition;
+		ConstrainedBox* currentBox = storyLineToCompile.m_constrainedBoxes[i];
+
+		unsigned int currentBoxId = currentBox->getId();
 
 		Transition* currentTransition;
 		Place* currentPlace;
 
-		ECOProcess* currentProcess = m_process[currentBox->getId()];
+		ECOProcess* currentProcess = m_process[currentBoxId];
 		currentProcess->init();
-		
+
 		unsigned int boxEndTime = currentBox->beginValue() + currentBox->lengthValue();
-		
+
 		if (((unsigned int) currentBox->beginValue() < timeToStartTriggerPoint) && (boxEndTime > timeToStartTriggerPoint)) {
 			currentProcess->setTimeOffsetInMs(timeToStartTriggerPoint - (currentBox->beginValue()));
 		}
@@ -270,13 +301,16 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 		vector<unsigned int>* controlPointID = new vector <unsigned int>;
 		currentBox->getAllControlPointsId(controlPointID);
 
-		for (unsigned int j = 0 ; j < controlPointID->size() ; ++j) {
-			currentTransition = m_petriNet->createTransition();
-			currentPlace = m_petriNet->createPlace();
+		Transition* firstTransition = NULL;
+		Transition* lastTransition = NULL;
 
-			Arc* arcFromCurrentPlaceToCurrentTransition = m_petriNet->createArc(currentPlace, currentTransition);
-			Arc* arcFromPreviousTransitionToCurrentPlace = m_petriNet->createArc(previousTransition, currentPlace);
-			
+		for (unsigned int j = 0 ; j < controlPointID->size() ; ++j) {
+			currentTransition = petriNet->createTransition();
+			currentPlace = petriNet->createPlace();
+
+			Arc* arcFromCurrentPlaceToCurrentTransition = petriNet->createArc(currentPlace, currentTransition);
+			Arc* arcFromPreviousTransitionToCurrentPlace = petriNet->createArc(previousTransition, currentPlace);
+
 			(void) arcFromPreviousTransitionToCurrentPlace;
 
 			ExtendedInt controlPointValue;
@@ -295,10 +329,46 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 			currentProcessStep->m_process = currentProcess;
 
 			currentTransition->addExternAction(&processCallBack, currentProcessStep);
+
 			ControlPointInformations* currentControlPointInformations = new ControlPointInformations();
+			currentControlPointInformations->m_ECOMachine = this;
 			currentControlPointInformations->m_controlPointIndex = controlPointID->at(j);
 			currentControlPointInformations->m_boxId = currentBox->getControlPoint(controlPointID->at(j))->getContainingBoxId();
 			currentControlPointInformations->m_crossAControlPointAction = m_crossAControlPointAction;
+
+			if (j == 0) {
+				firstTransition = currentTransition;
+			} else if (j == (controlPointID->size() - 1)) {
+				lastTransition = currentTransition;
+
+				if (hierarchyStoryLine.find(currentBoxId) != hierarchyStoryLine.end()) {
+					std::vector<unsigned int> currentProcessIdToStop;
+
+					unsigned int currentTime = (timeToStartTriggerPoint > (unsigned int) currentBox->beginValue())?(timeToStartTriggerPoint - currentBox->beginValue()):0;
+					PetriNet* currentPetriNet = compilePetriNet(hierarchyStoryLine[currentBoxId], hierarchyStoryLine, currentProcessIdToStop, currentTime, triggerAction);
+
+					petriNet->addInternPetriNet(firstTransition, lastTransition, currentPetriNet);
+
+					lastTransition->setPetriNetToEnd(currentPetriNet);
+
+					if ((currentBox->beginValue() + currentBox->lengthValue()) >= timeToStartTriggerPoint) {
+						lastTransition->setMustWaitThePetriNetToEnd(true);
+
+						arcList incomingArcs = currentTransition->inGoingArcsOf();
+						for (unsigned int k = 0; k < incomingArcs.size(); ++k) {
+							incomingArcs[k]->changeRelativeTime(incomingArcs[k]->getRelativeMinValue(), plusInfinity);
+						}
+					}
+
+					currentControlPointInformations->m_processIdToStop = currentProcessIdToStop;
+
+					for (unsigned int k = 0; k < currentProcessIdToStop.size(); ++k) {
+						processIdToStop.push_back(currentProcessIdToStop[k]);
+					}
+				}
+
+
+			}
 
 			currentTransition->addExternAction(&crossAControlPointCallBack, currentControlPointInformations);
 
@@ -307,15 +377,17 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 			previousTransition = currentTransition;
 		}
 
-		currentPlace = m_petriNet->createPlace();
-		Arc* arcFromPreviousTransitionToCurrentPlace = m_petriNet->createArc(previousTransition, currentPlace);
-		Arc* arcFromCurrentPlaceToTheEnd = m_petriNet->createArc(currentPlace, m_endTransition);
-		
+		currentPlace = petriNet->createPlace();
+		Arc* arcFromPreviousTransitionToCurrentPlace = petriNet->createArc(previousTransition, currentPlace);
+		Arc* arcFromCurrentPlaceToTheEnd = petriNet->createArc(currentPlace, endTransition);
+
 		(void) arcFromPreviousTransitionToCurrentPlace;
 
 		arcFromCurrentPlaceToTheEnd->changeRelativeTime(integer0, plusInfinity);
-		
+
 		currentProcess->setWrittenTime(currentBox->lengthValue());
+
+		processIdToStop.push_back(currentBoxId);
 
 		if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
 			SendNetworkMessageProcess* currentOSCProcess = (SendNetworkMessageProcess*) currentProcess;
@@ -333,15 +405,15 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 
 	std::map<Transition*, Transition*> mergeTransitions;
 	std::map<Transition*, Transition*>::iterator mergeIterator;
-	
+
 	/********** SECOND COMPILATION PHASE **********
 	 * Relations are added.
 	 **********************************************/
-	for (unsigned int i = 0 ; i < storyLineToCompile->m_antPostRelations.size() ; ++i) {
+	for (unsigned int i = 0 ; i < storyLineToCompile.m_antPostRelations.size() ; ++i) {
 		ControlPoint* firstControlPoint = NULL;
 		ControlPoint* secondControlPoint = NULL;
 
-		AntPostRelation* currentRelation = storyLineToCompile->m_antPostRelations[i];
+		AntPostRelation* currentRelation = storyLineToCompile.m_antPostRelations[i];
 
 		if (currentRelation->antPostType() == ANTPOST_ANTERIORITY) {
 			firstControlPoint = (ControlPoint*) currentRelation->entity1();
@@ -354,9 +426,9 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 		if (firstControlPoint->getContainingBoxId() != secondControlPoint->getContainingBoxId()) {
 			Transition* firstTransition = controlPointToTransitionConversion[firstControlPoint];
 			Transition* secondTransition = controlPointToTransitionConversion[secondControlPoint];
-			
+
 			mergeIterator = mergeTransitions.find(firstTransition);
-			
+
 			if (mergeIterator != mergeTransitions.end()) {
 				firstTransition = mergeIterator->second;
 			}
@@ -372,17 +444,19 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 				mergeTransitions[secondTransition] = firstTransition;
 			} else {
 
-				Place* currentPlace = m_petriNet->createPlace();
+				Place* currentPlace = petriNet->createPlace();
 
-				Arc* arcFromFirstTransitionToCurrentPlace = m_petriNet->createArc(firstTransition, currentPlace);
-				Arc* arcFromCurrentPlaceToSecondTransition = m_petriNet->createArc(currentPlace, secondTransition);
-				
+				Arc* arcFromFirstTransitionToCurrentPlace = petriNet->createArc(firstTransition, currentPlace);
+				Arc* arcFromCurrentPlaceToSecondTransition = petriNet->createArc(currentPlace, secondTransition);
+
 				(void) arcFromFirstTransitionToCurrentPlace;
 
 				ExtendedInt intervalValue;
 
 				intervalValue.setAsInteger(secondControlPoint->beginValue() - firstControlPoint->beginValue());
 				arcFromCurrentPlaceToSecondTransition->changeRelativeTime(intervalValue, plusInfinity);
+
+				arcToRelationConversion[arcFromCurrentPlaceToSecondTransition] = currentRelation;
 
 				// First cleaning.
 				petriNetNodeList placesAfterFirstTransition = firstTransition->returnSuccessors();
@@ -391,8 +465,8 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 					Place* placeToCheckIfLinkedWithEndTransition = (Place*) placesAfterFirstTransition[j];
 					Transition* transitionToCheckIfEqualToEndTransition = (Transition*) placeToCheckIfLinkedWithEndTransition->returnSuccessors()[0];
 
-					if (transitionToCheckIfEqualToEndTransition == m_endTransition) {
-						m_petriNet->deleteItem(placeToCheckIfLinkedWithEndTransition);
+					if (transitionToCheckIfEqualToEndTransition == endTransition) {
+						petriNet->deleteItem(placeToCheckIfLinkedWithEndTransition);
 					}
 				}
 
@@ -402,8 +476,8 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 					Place* placeToCheckIfLinkedWithStartTransition = (Place*) placesBeforeSecondTransition[j];
 					Transition* transitionToCheckIfEqualToStartTransition = (Transition*) placeToCheckIfLinkedWithStartTransition->returnPredecessors()[0];
 
-					if (transitionToCheckIfEqualToStartTransition == m_startTransition) {
-						m_petriNet->deleteItem(placeToCheckIfLinkedWithStartTransition);
+					if (transitionToCheckIfEqualToStartTransition == startTransition) {
+						petriNet->deleteItem(placeToCheckIfLinkedWithStartTransition);
 					}
 				}
 			}
@@ -415,14 +489,14 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 	/********** THIRD COMPILATION PHASE ***********
 	 * PetriNet is cleaned
 	 **********************************************/
-	cleanECO();
+	cleanPetriNet(petriNet, endTransition);
 
 	/********** FOURTH COMPILATION PHASE **********
 	 * Interaction is added.
 	 **********************************************/
 
-	map<unsigned int, TriggerPoint*>::iterator it  = storyLineToCompile->m_triggerPoints.begin();
-	while (it != storyLineToCompile->m_triggerPoints.end())
+	map<unsigned int, TriggerPoint*>::iterator it  = storyLineToCompile.m_triggerPoints.begin();
+	while (it != storyLineToCompile.m_triggerPoints.end())
 	{
 		TriggerPoint* currentTriggerPoint = it->second;
 
@@ -437,8 +511,10 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 					if (mergeIterator != mergeTransitions.end()) {
 						currentTransition = mergeIterator->second;
 					}
-								
+
 					currentTransition->setEvent(addNetworkMessage(currentTriggerPoint->getTriggerMessage()));
+
+					currentTransition->setMustWaitThePetriNetToEnd(false);
 
 					TriggerPointInformations currentTriggerPointInformations;
 
@@ -449,29 +525,48 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 					currentTriggerPointInformations.m_waitedTriggerPointMessageAction = m_waitedTriggerPointMessageAction;
 
 					m_transitionToTriggerPointInformations[currentTransition] = currentTriggerPointInformations;
-					
+
 					if (currentTriggerPoint->getType() == TRIGGER_END_TEMPO_CHANGE) {
 						unsigned int tempoChangeLastValue = relatedControlPoint->beginValue();
-						
+
 						unsigned int previousTriggerId = currentTriggerPoint->getPreviousTriggerId();
-						TriggerPoint* previousTriggerPoint = storyLineToCompile->m_triggerPoints[previousTriggerId];
-						
+						TriggerPoint* previousTriggerPoint = storyLineToCompile.m_triggerPoints[previousTriggerId];
+
 						ControlPoint* previousRelatedTrigerPoint = previousTriggerPoint->getRelatedControlPoint();
 						Transition* previousTransition = controlPointToTransitionConversion[previousRelatedTrigerPoint];
-						
+
 						unsigned int tempoChangeFirstValue = previousRelatedTrigerPoint->beginValue();
-						
+
 						ChangeTempo* tempo = new ChangeTempo(this);
 						tempo->m_writtenTime = tempoChangeLastValue - tempoChangeFirstValue;
-						
-						currentTransition->addExternAction(&lastTriggerReception, tempo); 
+
+						currentTransition->addExternAction(&lastTriggerReception, tempo);
 						previousTransition->addExternAction(&firstTriggerReception, tempo);
-						
+
 					}
 
 					arcList incomingArcs = currentTransition->inGoingArcsOf();
 					for (unsigned int i = 0; i < incomingArcs.size(); ++i) {
-						incomingArcs[i]->changeRelativeTime(integer0, plusInfinity);
+						Arc* currentArc = incomingArcs[i];
+						ExtendedInt minBound;
+						ExtendedInt maxBound;
+
+						minBound.setAsInteger(0);
+						maxBound.setAsPlusInfinity();
+
+						if (arcToRelationConversion.find(currentArc) != arcToRelationConversion.end()) {
+							AntPostRelation* currentRelation = arcToRelationConversion[currentArc];
+
+							if (currentRelation->minBound() != NO_BOUND) {
+								minBound.setAsInteger(currentRelation->minBound());
+							}
+
+							if (currentRelation->maxBound() != NO_BOUND) {
+								maxBound.setAsInteger(currentRelation->maxBound());
+							}
+						}
+
+						currentArc->changeRelativeTime(minBound, maxBound);
 					}
 				}
 			}
@@ -480,16 +575,15 @@ void ECOMachine::compileECO(StoryLine* storyLineToCompile, unsigned int timeToSt
 		++it;
 	}
 
+	petriNet->setTimeOffset(timeToStartTriggerPoint);
+
+	return petriNet;
+
 }
 
 bool ECOMachine::isRunning()
 {
-	return (m_isRunning);
-}
-
-bool ECOMachine::mustStop()
-{
-	return (m_mustStop);
+	return (m_petriNet->isRunning());
 }
 
 bool ECOMachine::isPaused()
@@ -507,13 +601,18 @@ bool ECOMachine::run()
 
 	if (m_petriNet != NULL) {
 		if (m_petriNet->getPlaces().size() >= 1) {
-			m_mustStop = false;
-			m_isRunning = true;
 			m_isPaused = false;
-			
+
 			pthread_create(&m_thread, NULL, ECOMachineMainFunction, this);
 			//pthread_create(&m_receiveThread, NULL, ECOMachineReceiveFunction, this);
 			//m_receiveOSCThread->run();
+
+			while(!isRunning())
+			{
+				usleep(10);
+			}
+			//getPetriNet()->addTime(getGotoInformation() * 1000);
+			setSpeedFactor(getSpeedFactor());
 
 			return true;
 		} else {
@@ -527,19 +626,20 @@ bool ECOMachine::run()
 void ECOMachine::pause(bool pauseValue)
 {
 	m_isPaused = pauseValue;
-	
+
 	if (isRunning()) {
 		if (!isPaused()) {
 			changeSpeedFactor(m_currentSpeedFactor);
 		} else {
 			changeSpeedFactor(0);
 		}
-	} 
+	}
 }
 
 bool ECOMachine::stop() {
-	if (isRunning()) {
-		m_mustStop = true;
+	if (m_petriNet->isRunning()) {
+		m_petriNet->mustStop();
+		//m_mustStop = true;
 
 		map<unsigned int, ECOProcess*>::iterator iter = m_process.begin();
 
@@ -567,7 +667,7 @@ unsigned int ECOMachine::getGotoInformation()
 bool ECOMachine::setSpeedFactor(float factor)
 {
 	m_currentSpeedFactor = factor;
-	
+
 	if (isRunning() && !isPaused()) {
 		return changeSpeedFactor(m_currentSpeedFactor);
 	} else {
@@ -580,11 +680,11 @@ float ECOMachine::getSpeedFactor()
 	return m_currentSpeedFactor;
 }
 
-bool ECOMachine::changeSpeedFactor(float factor) 
+bool ECOMachine::changeSpeedFactor(float factor)
 {
 	if (isRunning()) {
 		getPetriNet()->setUpdateFactor(factor);
-		
+
 		map<unsigned int, ECOProcess*>::iterator iter = m_process.begin();
 
 		while (iter != m_process.end()) {
@@ -648,16 +748,14 @@ ECOMachine::computeTransitionsSet(Transition* endTransition, map<Transition*, se
 }
 
 void
-ECOMachine::cleanECO(Transition* endTransition) {
-	if (m_petriNet == NULL) {
+ECOMachine::cleanPetriNet(PetriNet* petriNet, Transition* endTransition) {
+	if (petriNet == NULL) {
 		return;
 	}
 
 	map<Transition*, set<Transition*> >* transitionsSets = new map<Transition*, set<Transition*> >;
 
 	if (endTransition == NULL) {
-		computeTransitionsSet(m_endTransition, transitionsSets);
-	} else {
 		computeTransitionsSet(endTransition, transitionsSets);
 	}
 
@@ -699,7 +797,7 @@ ECOMachine::cleanECO(Transition* endTransition) {
 
 		for (placeSetIterator = placesToDelete.begin(); placeSetIterator != placesToDelete.end(); placeSetIterator++) {
 			Place* currentPlaceToDelete = *placeSetIterator;
-			m_petriNet->deleteItem(currentPlaceToDelete);
+			petriNet->deleteItem(currentPlaceToDelete);
 		}
 
 		++it;
@@ -728,11 +826,11 @@ ECOMachine::store(xmlNodePtr father)
 	}
 }
 
-void ECOMachine::load(xmlNodePtr root, Controller* controller)
+void ECOMachine::load(xmlNodePtr root, DeviceManager* controller)
 {
 	std::cout << "-> PROCESS ";
 	std::cout.flush();
-	
+
 	xmlNodePtr n = NULL;
 
 	//TODO: c'est stupide, regarder mieux !
@@ -761,7 +859,7 @@ void ECOMachine::load(xmlNodePtr root, Controller* controller)
 								newProcess(processType, processId, controller);
 
 								getProcess(processId)->load(xmlProcess);
-								
+
 								std::cout << ".";
 								std::cout.flush();
 							} else {
@@ -777,11 +875,11 @@ void ECOMachine::load(xmlNodePtr root, Controller* controller)
 			}
 		}
 	}
-	
+
 	std::cout << std::endl;
 }
 
-void ECOMachine::addCrossAControlPointAction(void(*pt2Func)(unsigned int, unsigned int))
+void ECOMachine::addCrossAControlPointAction(void(*pt2Func)(unsigned int, unsigned int, std::vector<unsigned int>))
 {
 	m_crossAControlPointAction = pt2Func;
 }
@@ -836,7 +934,7 @@ float ECOMachine::getProcessProgressionPercent(unsigned int processId)
 	if(iter == m_process.end())  {
 		return 0;
 	} else {
-		return iter->second->getProgressionPercent(); 
+		return iter->second->getProgressionPercent();
 	}
 
 }

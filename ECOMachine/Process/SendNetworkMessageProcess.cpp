@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -56,11 +56,11 @@ knowledge of the CeCILL-C license and that you accept its terms.
 
 //#define DEBUG_OSC
 
-SendNetworkMessageProcess::SendNetworkMessageProcess(unsigned int id, Controller* controller)
+SendNetworkMessageProcess::SendNetworkMessageProcess(unsigned int id, DeviceManager* controller)
 :ECOProcess(id)
 {
 	m_type = PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND;
-	
+
 	m_currentTime = 0;
 
 	m_nbSampleBySec = DEFAUT_NB_SAMPLES_BY_SEC;
@@ -74,30 +74,30 @@ SendNetworkMessageProcess::SendNetworkMessageProcess(unsigned int id, Controller
 void SendNetworkMessageProcess::init()
 {
 	ECOProcess::init();
-	
+
 	unsigned int firstStep = 0;
-	
+
 	std::map<unsigned int, std::map<std::string, std::string> >::iterator itMessageToSendInMap = m_messageToSendInMap.find(firstStep);
-	
+
 	if (itMessageToSendInMap != m_messageToSendInMap.end()) {
 		std::map<std::string, std::string> firstMap = itMessageToSendInMap->second;
-		
+
 		std::map<unsigned int, std::vector<std::string> >::iterator itMessageToSendInVector = m_messageToSendInVector.begin();
-		
+
 		while (itMessageToSendInVector != m_messageToSendInVector.end()) {
 			unsigned int currentStep = itMessageToSendInVector->first;
 			if (currentStep != firstStep) {
 				std::vector<std::string> currentVector = itMessageToSendInVector->second;
-				
+
 				for (unsigned int i = 0; i < currentVector.size(); ++i) {
 					std::string currentMessage = currentVector[i];
 					StringParser currentStringParser(currentMessage);
-					
+
 					std::map<std::string, NetworkMessageCurves>::iterator itCurves = m_curves.find(currentStringParser.getAddress());
-					
+
 					if (itCurves == m_curves.end()) {
 						std::map<std::string, std::string>::iterator itMessage = firstMap.find(currentStringParser.getAddress());
-						
+
 						if (itMessage == firstMap.end()) {
 							m_messageMuteState[currentStep].at(i) = false;
 						} else {
@@ -107,18 +107,18 @@ void SendNetworkMessageProcess::init()
 								m_messageMuteState[currentStep].at(i) = false;
 							}
 						}
-						
+
 					} else {
 						m_messageMuteState[currentStep].at(i) = false;
 					}
 				}
 			}
-			
+
 			itMessageToSendInVector++;
 		}
-		
+
 	}
-	
+
 }
 
 SendNetworkMessageProcess::~SendNetworkMessageProcess()
@@ -131,9 +131,9 @@ void SendNetworkMessageProcess::addMessages(std::vector<std::string> messages, u
 	--stepId;
 
 	std::map<std::string, std::string> newMap;
-	
+
 	m_messageToSendInMap[stepId] = newMap;
-	
+
 	m_messageToSendInVector[stepId].clear();
 
 	for (unsigned int i = 0; i < messages.size(); ++i) {
@@ -154,11 +154,11 @@ void SendNetworkMessageProcess::addMessages(std::vector<std::string> messages, u
 	}
 }
 
-void SendNetworkMessageProcess::getMessages(std::vector<std::string>* messages, unsigned int stepId)
+void SendNetworkMessageProcess::getMessages(std::vector<std::string>& messages, unsigned int stepId)
 {
 	--stepId;
 
-	messages->clear();
+	messages.clear();
 
 //	std::map<unsigned int, std::map<std::string, std::string > >::iterator it  = m_messageToSendInMap.find(stepId);
 //
@@ -171,9 +171,9 @@ void SendNetworkMessageProcess::getMessages(std::vector<std::string>* messages, 
 //			it2++;
 //		}
 //	}
-	
+
 	for (unsigned int i = 0; i < m_messageToSendInVector[stepId].size(); ++i) {
-		messages->push_back(m_messageToSendInVector[stepId][i]);
+		messages.push_back(m_messageToSendInVector[stepId][i]);
 	}
 }
 
@@ -187,7 +187,7 @@ void SendNetworkMessageProcess::removeMessage(unsigned int stepId)
 	if (it != m_messageToSendInMap.end()) {
 		m_messageToSendInMap.erase(it);
 	}
-	
+
 	if (it2 != m_messageToSendInVector.end()) {
 		m_messageToSendInVector.erase(it2);
 	}
@@ -203,6 +203,18 @@ bool SendNetworkMessageProcess::addCurvesPoints(std::string address, unsigned in
 	}
 
 	return it->second.addCurvesPoints(argNb, percent, y, sectionType, coeff);
+}
+
+bool SendNetworkMessageProcess::getCurveSections(std::string address, unsigned int argNb, std::vector<float>& percent,
+												std::vector<float>& y, std::vector<short>& sectionType, std::vector<float>& coeff)
+{
+	std::map<std::string, NetworkMessageCurves>::iterator it = m_curves.find(address);
+
+	if (it == m_curves.end()) {
+		return false;
+	}
+
+	return it->second.getCurveSections(argNb, percent, y, sectionType, coeff);
 }
 
 void SendNetworkMessageProcess::setMessageMuteState(unsigned int stepId, bool muteState)
@@ -230,7 +242,7 @@ void SendNetworkMessageProcess::setAllMessagesMuteState(bool muteState)
 
 }
 
-bool SendNetworkMessageProcess::getCurves(std::string address, unsigned int argNb, unsigned int duration, unsigned int firstControlPointIndex, unsigned int lastControlPointIndex, std::vector<float>* result)
+bool SendNetworkMessageProcess::getCurves(std::string address, unsigned int argNb, unsigned int duration, unsigned int firstControlPointIndex, unsigned int lastControlPointIndex, std::vector<float>& result)
 {
 	std::vector<float> returnVector;
 
@@ -350,7 +362,7 @@ bool SendNetworkMessageProcess::setCurvesSections(std::string address, unsigned 
 	if (it != m_curves.end()) {
 		it->second.addCurvesPoints(argNb, percent, y, sectionType, coeff);
 	}
-	
+
 	return true;
 }
 
@@ -364,11 +376,11 @@ void SendNetworkMessageProcess::computeCurves(unsigned int firstStep, unsigned i
 
 	for (unsigned int i = 0; i < startMessages.size(); ++i) {
 		std::string currentAddress = StringParser(startMessages[i]).getAddress();
-		
+
 		std::map<std::string, NetworkMessageCurves>::iterator it = m_curves.find(currentAddress);
-		
+
 		if (it != m_curves.end()) {
-			
+
 
 			std::map<std::string, std::string>::iterator it1 = firstMapForInterpolation.find(currentAddress);
 			std::map<std::string, std::string>::iterator it2 = secondMapForInterpolation.find(currentAddress);
@@ -384,15 +396,15 @@ void SendNetworkMessageProcess::computeCurves(unsigned int firstStep, unsigned i
 			++it;
 		}
 	}
-	
-	
+
+
 
 
 }
 
 void SendNetworkMessageProcess::sendMessage(std::string stringToSend)
 {
-	m_networkController->deviceSendSetRequest(stringToSend); 
+	m_networkController->deviceSendSetRequest(stringToSend);
 }
 
 long long SendNetworkMessageProcess::computeDt()
@@ -468,11 +480,11 @@ void SendNetworkMessageProcess::sendCurves(unsigned int time)
 float SendNetworkMessageProcess::getProgressionPercent()
 {
 	float percent =  ((float)m_currentTime/(float)(m_writtenTime * 1000));
-	
+
 	if (percent > 1.) {
 		percent = 1.;
 	}
-	
+
 	return percent;
 }
 
@@ -494,8 +506,8 @@ void SendNetworkMessageProcess::mainFunction()
 			++NetworkMessageThreadArg->m_currentStepIndex;
 
 			//if (((m_curvesToSend.size() > 0) && (OSCThreadArg->m_currentStepIndex != 0)) || (m_curvesToSend.size() == 0)) {
-			
-			
+
+
 			//std::map<unsigned int, std::map<std::string, std::string > >::iterator it  = NetworkMessageThreadArg->m_messageToSendInMap.find(NetworkMessageThreadArg->m_currentStepIndex);
 			std::map<unsigned int, std::vector<std::string> >::iterator it  = NetworkMessageThreadArg->m_messageToSendInVector.find(NetworkMessageThreadArg->m_currentStepIndex);
 
@@ -511,7 +523,7 @@ void SendNetworkMessageProcess::mainFunction()
 //					sendMessage(stringToSend);
 //					it2++;
 //				}
-				
+
 				for (unsigned int i = 0; i < currentVector.size(); ++i) {
 					if (!currentMuteState[i]) {
 						sendMessage(currentVector[i]);
@@ -539,7 +551,7 @@ void SendNetworkMessageProcess::store(xmlNodePtr father)
 	xmlNodePtr node = NULL;
 	xmlNodePtr messageNode = NULL;
 	xmlNodePtr processNode = storeGlobalProcess(father);
-	
+
 	if (m_curvesMuteState) {
 		xmlSetProp(processNode, BAD_CAST "mute", BAD_CAST "true");
 	} else {
@@ -570,7 +582,7 @@ void SendNetworkMessageProcess::store(xmlNodePtr father)
 
 		if (it != m_messageToSendInVector.end()) {
 			std::vector<std::string> currentVector = m_messageToSendInVector[i];
-			
+
 			for (unsigned int i = 0; i < currentVector.size(); ++i) {
 				messageNode = xmlNewNode(NULL, BAD_CAST "MESSAGE");
 				xmlSetProp(messageNode, BAD_CAST "value", BAD_CAST currentVector[i].data());
@@ -587,7 +599,7 @@ void SendNetworkMessageProcess::store(xmlNodePtr father)
 //			}
 		}
 	}
-	
+
 //	std::vector<std::string> curvesAdressToSend = getCurvesAdress();
 //
 //	for (unsigned int i = 0; i < curvesAdressToSend.size(); ++i) {
@@ -603,13 +615,13 @@ void SendNetworkMessageProcess::store(xmlNodePtr father)
 //
 //		xmlAddChild(processNode, node);
 //	}
-	
-	
+
+
 	std::map<std::string, NetworkMessageCurves >::iterator it3 = m_curves.begin();
-	
+
 	while (it3 != m_curves.end()) {
 		it3->second.store(processNode);
-		
+
 		++it3;
 	}
 
@@ -622,7 +634,7 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 	xmlNodePtr xmlCurvesInformation = NULL;
 
 	unsigned int stepId;
-	
+
 	xmlChar* xmlAddressMute = xmlGetProp(root, BAD_CAST "mute");
 
 	if (xmlAddressMute != NULL) {
@@ -681,9 +693,9 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 
 				if (xmlAddress != NULL) {
 					std::string address = XMLConversion::xmlCharToString(xmlAddress);
-				
+
 					addCurves(address);
-					
+
 					if (xmlSampleRate != NULL) {
 						setNbSamplesBySec(address, XMLConversion::xmlCharToInt(xmlSampleRate));
 					}
@@ -699,49 +711,49 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 						}
 
 					}
-					
-					
-					
-					for (xmlCurvesArg = xmlStep->children; xmlCurvesArg != NULL; xmlCurvesArg = xmlCurvesArg->next) {	
+
+
+
+					for (xmlCurvesArg = xmlStep->children; xmlCurvesArg != NULL; xmlCurvesArg = xmlCurvesArg->next) {
 						if (xmlStrEqual(xmlCurvesArg->name, BAD_CAST "ARGUMENT")) {
 							unsigned int argNb;
 							std::vector<float> percent;
 							std::vector<float> y;
 							std::vector<short> sectionType;
 							std::vector<float> coeff;
-							
+
 							xmlChar* xmlArgNb = xmlGetProp(xmlCurvesArg, BAD_CAST "nb");
-							
+
 							argNb = XMLConversion::xmlCharToUnsignedInt(xmlArgNb);
-							
-							for (xmlCurvesInformation = xmlCurvesArg->children; xmlCurvesInformation != NULL; xmlCurvesInformation = xmlCurvesInformation->next) {	
+
+							for (xmlCurvesInformation = xmlCurvesArg->children; xmlCurvesInformation != NULL; xmlCurvesInformation = xmlCurvesInformation->next) {
 								if (xmlStrEqual(xmlCurvesInformation->name, BAD_CAST "COORDINATE")) {
 									xmlChar* XMLx = xmlGetProp(xmlCurvesInformation, BAD_CAST "x_percent");
 									xmlChar* XMLy = xmlGetProp(xmlCurvesInformation, BAD_CAST "y_value");
-									
+
 									percent.push_back(XMLConversion::xmlCharToInt(XMLx));
 									y.push_back(XMLConversion::xmlCharToInt(XMLy));
 								} else if (xmlStrEqual(xmlCurvesInformation->name, BAD_CAST "SECTION")) {
 									xmlChar* XMLSectionType = xmlGetProp(xmlCurvesInformation, BAD_CAST "section_type");
 									xmlChar* XMLCoeff = xmlGetProp(xmlCurvesInformation, BAD_CAST "coeff");
-									
+
 									std::string sectionTypeString = XMLConversion::xmlCharToString(XMLSectionType);
-									
+
 									if (sectionTypeString == "pow") {
 										sectionType.push_back(CURVE_POW);
 									}
-									
+
 									coeff.push_back(XMLConversion::xmlCharToFloat(XMLCoeff));
 								}
 							}
-							
+
 							addCurvesPoints(address, argNb, percent, y, sectionType, coeff);
-						} 
+						}
 					}
 				}
-				
-				
-			} 
+
+
+			}
 		}
 	}
 }

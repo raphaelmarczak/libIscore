@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -45,7 +45,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
 #include <string>
 #include <vector>
 
-void controlPointCallBack(unsigned int boxId, unsigned int controlPointIndex)
+void controlPointCallBack(unsigned int boxId, unsigned int controlPointIndex, std::vector<unsigned int> processToStop)
 {
   std::string controlPointPosition;
 
@@ -56,32 +56,39 @@ void controlPointCallBack(unsigned int boxId, unsigned int controlPointIndex)
   }
 
   std::cout << "* A Control Point was just crossed *" << std::endl;
-  std::cout << "<BoxID, ControlPoint position>: <" 
+  std::cout << "<BoxID, ControlPoint position>: <"
 	    << boxId << ", " << controlPointPosition
 	    << ">" << std::endl;
 }
 
 void waitedTriggerPointCallBack(bool isWaited, unsigned int triggerId, unsigned int boxId, unsigned int controlPointIndex, std::string triggerMessage)
 {
-  std::string controlPointPosition;
+	if (isWaited) {
+		std::string controlPointPosition;
 
-  if (controlPointIndex == BEGIN_CONTROL_POINT_INDEX) {
-    controlPointPosition = "BOX BEGIN";
-  } else {
-    controlPointPosition = "BOX END";
-  }
+		if (controlPointIndex == BEGIN_CONTROL_POINT_INDEX) {
+			controlPointPosition = "BOX BEGIN";
+		} else {
+			controlPointPosition = "BOX END";
+		}
 
-  std::cout << "* A Trigger Point is ready to be activated *" << std::endl;
-  std::cout << "Please send the Trigger Point message ("<< triggerMessage << ") to this computer using the port 7002" << std::endl;
-  std::cout << "(or quit by pressing ctrl-C)" << std::endl;
-  std::cout << "<BoxID, ControlPoint Position, Trigger message>: <" 
-	    << boxId << ", " << controlPointPosition << ", " << triggerMessage 
-	    << ">" << std::endl;
+		std::cout << "* A Trigger Point is ready to be activated *" << std::endl;
+		std::cout << "Please send the Trigger Point message ("<< triggerMessage << ") to this computer using the port 7002" << std::endl;
+		std::cout << "(or quit by pressing ctrl-C)" << std::endl;
+		std::cout << "<BoxID, ControlPoint Position, Trigger message>: <"
+		<< boxId << ", " << controlPointPosition << ", " << triggerMessage
+		<< ">" << std::endl;
+	}
 }
 
 void isExecutionFinishedCallBack()
 {
   std::cout << "* The execution is now finished *" << std::endl;
+}
+
+void hierarchy()
+{
+
 }
 
 int main()
@@ -111,9 +118,11 @@ int main()
   int secondBoxDurationInMs = 1000;
   int box2ID = mainEngines->addBox(secondBoxBeginInMs, secondBoxDurationInMs, ROOT_BOX_ID);
 
+  std::vector<unsigned int> movedBox;
+
   // Force the begin of the second box to be after the end of the first one.
   // Two relations: ANTPOST_ANTERIORITY and ANTPOST_POSTERIORITY.
-  mainEngines->addTemporalRelation(box1ID, END_CONTROL_POINT_INDEX, box2ID, BEGIN_CONTROL_POINT_INDEX, ANTPOST_ANTERIORITY);
+  mainEngines->addTemporalRelation(box1ID, END_CONTROL_POINT_INDEX, box2ID, BEGIN_CONTROL_POINT_INDEX, ANTPOST_ANTERIORITY, movedBox);
 
   // Add three callbacks to be informed during execution:
   // - When a controlPoint (start or end of a box) is crossed.
@@ -153,7 +162,7 @@ int main()
   box2MessagesEnd.push_back("/myDevice/box2/parameter 100");
   mainEngines->setCtrlPointMessagesToSend(box2ID, END_CONTROL_POINT_INDEX, box2MessagesEnd);
 
-  
+
 
   std::cout << std::endl;
   std::cout << "********************************" << std::endl;
@@ -163,16 +172,16 @@ int main()
   std::cout << std::endl;
 
   std::getc(stdin);
- 
+
   mainEngines->play();
 
   while (mainEngines->isRunning()) {
     usleep(50);
-  } 
+  }
 
   std::cout << "END OF FIRST EXAMPLE" << std::endl << std::endl;
 
-  
+
   // **** SECOND EXAMPLE ****
   // Add interpolation
 
@@ -189,13 +198,13 @@ int main()
   std::cout << "Press A Key to continue" << std::endl;
   std::cout << std::endl;
 
- std::getc(stdin);
+  std::getc(stdin);
 
   mainEngines->play();
 
   while (mainEngines->isRunning()) {
     usleep(50);
-  } 
+  }
 
 
   // **** THIRD EXAMPLE ****
@@ -203,7 +212,7 @@ int main()
 
   // Creation of a triggerPoint.
   // First, it is not linked to any controlPoint.
-  unsigned int triggerID = mainEngines->addTriggerPoint();
+  unsigned int triggerID = mainEngines->addTriggerPoint(ROOT_BOX_ID);
 
   // Link the triggerPoint to a controlPoint.
   mainEngines->assignCtrlPointToTriggerPoint(triggerID, box2ID, BEGIN_CONTROL_POINT_INDEX);
@@ -218,11 +227,72 @@ int main()
   std::cout << "Press A Key to continue" << std::endl;
   std::cout << std::endl;
 
- std::getc(stdin);
+  std::getc(stdin);
 
   mainEngines->play();
 
   while (mainEngines->isRunning()) {
     usleep(50);
-  } 
+  }
+
+  // **** FOURTH EXAMPLE ****
+
+  mainEngines->reset(scenarioSize);
+  mainEngines->addNetworkDevice("/myDevice", "OSC", "127.0.0.1", "9998");
+
+  firstBoxBeginInMs = 1000;
+  firstBoxDurationInMs = 5000;
+  box2ID = mainEngines->addBox(firstBoxBeginInMs, firstBoxDurationInMs, ROOT_BOX_ID);
+
+  secondBoxBeginInMs = 1000;
+  secondBoxDurationInMs = 2000;
+  int box3ID = mainEngines->addBox(secondBoxBeginInMs, secondBoxDurationInMs, box2ID);
+
+  int thirdBoxBeginInMs = 500;
+  int thirdBoxDurationInMs = 500;
+  int box4ID = mainEngines->addBox(thirdBoxBeginInMs, thirdBoxDurationInMs, box3ID);
+
+  int fourthBoxBeginInMs = 1100;
+  int fourthBoxDurationInMs = 500;
+  int box5ID = mainEngines->addBox(fourthBoxBeginInMs, fourthBoxDurationInMs, box3ID);
+
+  int fifthBoxBeginInMs = 7000;
+  int fifthBoxDurationInMs = 3000;
+  int box6ID = mainEngines->addBox(fifthBoxBeginInMs, fifthBoxDurationInMs, ROOT_BOX_ID);
+
+  int sixthBoxBeginInMs = 1000;
+  int sixthBoxDurationInMs = 1000;
+  int box7ID = mainEngines->addBox(sixthBoxBeginInMs, sixthBoxDurationInMs, box4ID);
+
+//  std::cout << "suppr box 3" << std::endl;
+//  mainEngines->removeBox(box3ID);
+//
+//  mainEngines->addTemporalRelation(box2ID, END_CONTROL_POINT_INDEX, box6ID, BEGIN_CONTROL_POINT_INDEX, ANTPOST_ANTERIORITY, movedBox);
+//
+//  std::cout << "2: " << mainEngines->getBoxBeginTime(box2ID) << " " << mainEngines->getBoxEndTime(box2ID) << std::endl;
+//  std::cout << "6: " << mainEngines->getBoxBeginTime(box6ID) << " " << mainEngines->getBoxEndTime(box6ID) << std::endl;
+//
+//  std::cout << "bool: " << mainEngines->performBoxEditing(box6ID, 4999, 7999, movedBox) << std::endl;
+//
+//  std::cout << "2: " << mainEngines->getBoxBeginTime(box2ID) << " " << mainEngines->getBoxEndTime(box2ID) << std::endl;
+//  std::cout << "6: " << mainEngines->getBoxBeginTime(box6ID) << " " << mainEngines->getBoxEndTime(box6ID) << std::endl;
+
+  mainEngines->addCrossingCtrlPointCallback(&controlPointCallBack);
+  mainEngines->addCrossingTrgPointCallback(&waitedTriggerPointCallBack);
+  mainEngines->addExecutionFinishedCallback(&isExecutionFinishedCallBack);
+
+  std::cout << std::endl;
+  std::cout << "********************************" << std::endl;
+  std::cout << "FOURTH EXAMPLE" << std::endl;
+  std::cout << "Press A Key to continue" << std::endl;
+  std::cout << std::endl;
+
+  std::getc(stdin);
+
+  mainEngines->play();
+
+  while (mainEngines->isRunning()) {
+	  usleep(50);
+  }
 }
+

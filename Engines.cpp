@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -63,20 +63,20 @@ void receiveNetworkMessageCallBack(void* arg, std::string message, std::string a
 	std::string rewind = "/Transport/Rewind";
 	std::string startPoint = "/Transport/StartPoint";
 	std::string speed = "/Transport/Speed";
-		
+
 	Engines* engines = (Engines*) arg;
-	
+
 	std::string argument = value;
-	
+
 	unsigned int action = UNKNOWN_MESSAGE;
 
 	void (*updateAction)(unsigned int, std::string, std::string) = engines->m_implementation->m_enginesUpdateWithNetworkMessageAction;
-	
+
 	if (engines->receiveNetworkMessage(message)) {
 		action = TRIGGER_MESSAGE;
 	} else {
 		std::string currentAddress = message;
-			 		
+
 		if (currentAddress == play) {
 			engines->play();
 			action = ENGINES_PLAY;
@@ -102,21 +102,21 @@ void receiveNetworkMessageCallBack(void* arg, std::string message, std::string a
 				action = ENGINES_SPEED_MODIFICATION;
 			}
 		}
-		
+
 		if (updateAction != NULL) {
 			updateAction(action, message, argument);
-		} 
+		}
 	}
-} 
+}
 
 void triggerPointStateCallBack(void* arg, bool isWaited, unsigned int triggerId, unsigned int boxId, unsigned int controlPointIndex, std::string waitedString)
 {
 	Engines* engines = (Engines*) arg;
 
 	if(isWaited) {
-		engines->m_implementation->m_networkController->setNamespaceValue(waitedString, 1 /* TRIGGER_WAITED */, engines->getBoxOptionalArguments(boxId));
+		//TODO: engines->m_implementation->m_networkController->setNamespaceValue(waitedString, 1 /* TRIGGER_WAITED */, engines->getBoxOptionalArguments(boxId));
 	} else {
-		engines->m_implementation->m_networkController->setNamespaceValue(waitedString, 2 /* TRIGGER_PUSHED */, engines->getBoxOptionalArguments(boxId));
+		//TODO: engines->m_implementation->m_networkController->setNamespaceValue(waitedString, 2 /* TRIGGER_PUSHED */, engines->getBoxOptionalArguments(boxId));
 	}
 
 	if (engines->m_implementation->m_waitedTriggerPointMessageAction != NULL) {
@@ -125,10 +125,10 @@ void triggerPointStateCallBack(void* arg, bool isWaited, unsigned int triggerId,
 }
 
 void executionFinishedCallBack(void* arg)
-{ 
+{
 	Engines* engines = (Engines*) arg;
 
-	engines->m_implementation->m_networkController->resetTriggerPointStates();
+	//TODO: engines->m_implementation->m_networkController->resetTriggerPointStates();
 
 	if (engines->m_implementation->m_isECOMachineFinish != NULL) {
 		engines->m_implementation->m_isECOMachineFinish();
@@ -143,14 +143,16 @@ void Engines::initializeObjects(unsigned int maxSceneWidth, std::string pluggins
 	m_implementation->m_editor = new Editor(maxSceneWidth);
 	m_implementation->m_executionMachine = new ECOMachine();
 
-	m_implementation->m_networkController = new Controller("Virage");
+	m_implementation->m_networkController = new DeviceManager("Virage");
 	m_implementation->m_networkController->pluginLoad(plugginsLocation);
 	m_implementation->m_networkController->deviceSetCurrent();
 	m_implementation->m_networkController->namespaceSetAddCallback(this, &receiveNetworkMessageCallBack);
 
+	m_implementation->m_networkController->pluginLaunch();
+
 	m_implementation->m_executionMachine->addWaitedTriggerPointMessageAction(this, &triggerPointStateCallBack);
 	m_implementation->m_executionMachine->addIsECOFinishedAction(this, &executionFinishedCallBack);
-	
+
 	m_implementation->m_enginesUpdateWithNetworkMessageAction = NULL;
 }
 
@@ -159,7 +161,7 @@ Engines::Engines(unsigned int maxSceneWitdth, std::string plugginsLocation)
 	initializeObjects(maxSceneWitdth, plugginsLocation);
 }
 
-Engines::Engines(void(*crossAction)(unsigned int, unsigned int),
+Engines::Engines(void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 				 void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string),
 				 void(*isExecutionFinished)(),
 				 unsigned int maxSceneWitdth,
@@ -209,7 +211,7 @@ void Engines::reset(unsigned int maxSceneWidth)
 	m_implementation->m_executionMachine->addIsECOFinishedAction(this, &executionFinishedCallBack);
 }
 
-void Engines::reset(void(*crossAction)(unsigned int, unsigned int),
+void Engines::reset(void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 					void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string),
 					unsigned int maxSceneWidth)
 {
@@ -231,7 +233,7 @@ void deprecated(std::string a, std::string b)
 	std::cout << std::endl << std::endl;
 }
 
-void Engines::addCrossingCtrlPointCallback(void(*pt2Func)(unsigned int, unsigned int))
+void Engines::addCrossingCtrlPointCallback(void(*pt2Func)(unsigned int, unsigned int, std::vector<unsigned int>))
 {
 	getExecutionMachine()->addCrossAControlPointAction(pt2Func);
 }
@@ -300,7 +302,8 @@ unsigned int Engines::addBox(int boxBeginPos, int boxLength, unsigned int mother
 
 void Engines::changeBoxBounds(unsigned int boxId, int minBound, int maxBound)
 {
-	unsigned int flexibilityRelationID = getEditor()->addAntPostRelation(boxId, BEGIN_CONTROL_POINT_INDEX, boxId, END_CONTROL_POINT_INDEX, ANTPOST_ANTERIORITY, minBound, maxBound, NULL);
+	std::vector<unsigned int> movedBoxes;
+	unsigned int flexibilityRelationID = getEditor()->addAntPostRelation(boxId, BEGIN_CONTROL_POINT_INDEX, boxId, END_CONTROL_POINT_INDEX, ANTPOST_ANTERIORITY, minBound, maxBound, movedBoxes);
 
 	if (flexibilityRelationID != NO_ID) {
 		ConstrainedBox* currentConstrainedBox = getEditor()->getBoxById(boxId);
@@ -335,7 +338,14 @@ std::map<std::string, std::string> Engines::getBoxOptionalArguments(unsigned int
 	return getEditor()->getOptionalArguments(boxId);
 }
 
-unsigned int Engines::addTemporalRelation(unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>* movedBoxes)
+unsigned int Engines::addTemporalRelation(unsigned int boxId1,
+										  unsigned int controlPoint1,
+										  unsigned int boxId2,
+										  unsigned int controlPoint2,
+										  TemporalRelationType type,
+										  int minBound,
+										  int maxBound,
+										  vector<unsigned int>& movedBoxes)
 {
 	if (boxId1 == boxId2) {
 		return NO_ID;
@@ -344,12 +354,17 @@ unsigned int Engines::addTemporalRelation(unsigned int boxId1, unsigned int cont
 	return getEditor()->addAntPostRelation(boxId1, controlPoint1, boxId2, controlPoint2, type, minBound, maxBound, movedBoxes);
 }
 
-unsigned int Engines::addTemporalRelation(unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, vector<unsigned int>* movedBoxes)
+unsigned int Engines::addTemporalRelation(unsigned int boxId1,
+										  unsigned int controlPoint1,
+										  unsigned int boxId2,
+										  unsigned int controlPoint2,
+										  TemporalRelationType type,
+										  vector<unsigned int>& movedBoxes)
 {
 	return addTemporalRelation(boxId1, controlPoint1, boxId2, controlPoint2, type, NO_BOUND, NO_BOUND, movedBoxes);
 }
 
-void Engines::changeTemporalRelationBounds(unsigned int relationId, int minBound, int maxBound, vector<unsigned int>* movedBoxes)
+void Engines::changeTemporalRelationBounds(unsigned int relationId, int minBound, int maxBound, vector<unsigned int>& movedBoxes)
 {
 	getEditor()->changeAntPostRelationBounds(relationId, minBound, maxBound, movedBoxes);
 }
@@ -386,7 +401,17 @@ unsigned int Engines::getRelationSecondCtrlPointIndex(unsigned int relationId)
 	return getEditor()->getRelationSecondControlPointIndex(relationId);
 }
 
-bool Engines::performBoxEditing(unsigned int boxId, int x, int y, vector<unsigned int>* movedBoxes, unsigned int maxModification)
+int Engines::getRelationMinBound(unsigned int relationId)
+{
+	return getEditor()->getRelationMinBound(relationId);
+}
+
+int Engines::getRelationMaxBound(unsigned int relationId)
+{
+	return getEditor()->getRelationMaxBound(relationId);
+}
+
+bool Engines::performBoxEditing(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification)
 {
 	return getEditor()->performMoving(boxId, x, y, movedBoxes, maxModification);
 }
@@ -432,7 +457,7 @@ void Engines::setCtrlPointMessagesToSend(unsigned int boxId, unsigned int contro
 	}
 }
 
-void Engines::getCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex, std::vector<std::string>* messages)
+void Engines::getCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex, std::vector<std::string>& messages)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
@@ -518,7 +543,7 @@ void Engines::setBoxMutingState(unsigned int boxId, bool mute)
 
 //CURVES ////////////////////////////////////////////////////////////////////////////////////
 
-void Engines::addCurve(unsigned int boxId, std::string address)
+void Engines::addCurve(unsigned int boxId, const std::string & address)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
@@ -530,7 +555,7 @@ void Engines::addCurve(unsigned int boxId, std::string address)
 	}
 }
 
-void Engines::removeCurve(unsigned int boxId, std::string address)
+void Engines::removeCurve(unsigned int boxId, const std::string & address)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
@@ -556,7 +581,7 @@ void Engines::clearCurves(unsigned int boxId)
 std::vector<std::string> Engines::getCurvesAddress(unsigned int boxId)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
-	
+
 	std::vector<std::string> addressToReturn;
 
 	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
@@ -566,11 +591,11 @@ std::vector<std::string> Engines::getCurvesAddress(unsigned int boxId)
 	} else {
 		//TODO : exception
 	}
-	
+
 	return addressToReturn;
 }
 
-void Engines::setCurveSampleRate(unsigned int boxId, std::string address, unsigned int nbSamplesBySec)
+void Engines::setCurveSampleRate(unsigned int boxId, const std::string & address, unsigned int nbSamplesBySec)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
@@ -581,10 +606,10 @@ void Engines::setCurveSampleRate(unsigned int boxId, std::string address, unsign
 	}
 }
 
-unsigned int Engines::getCurveSampleRate(unsigned int boxId, std::string address)
+unsigned int Engines::getCurveSampleRate(unsigned int boxId, const std::string & address)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
-	
+
 	unsigned int sampleRate = 0;
 
 	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
@@ -594,61 +619,61 @@ unsigned int Engines::getCurveSampleRate(unsigned int boxId, std::string address
 	} else {
 		//TODO : exception
 	}
-	
+
 	return sampleRate;
 }
 
-void Engines::setCurveRedundancy(unsigned int boxId, std::string address, bool avoidRedondance)
+void Engines::setCurveRedundancy(unsigned int boxId, const std::string & address, bool redondancy)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
 	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
 		SendNetworkMessageProcess* currentSendOSCProcess = (SendNetworkMessageProcess*) currentProcess;
-		currentSendOSCProcess->setAvoidRedondanceInformation(address, avoidRedondance);
+		currentSendOSCProcess->setAvoidRedondanceInformation(address, !redondancy);
 	}
 }
 
-bool Engines::getCurveRedundancy(unsigned int boxId, std::string address)
+bool Engines::getCurveRedundancy(unsigned int boxId, const std::string & address)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
-	
+
 	bool curveRedundancyInformation = false;
 
 	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
 		SendNetworkMessageProcess* currentSendOSCProcess = (SendNetworkMessageProcess*) currentProcess;
-		curveRedundancyInformation = currentSendOSCProcess->getAvoidRedondanceInformation(address);
+		curveRedundancyInformation = !currentSendOSCProcess->getAvoidRedondanceInformation(address);
 	} else {
 		//TODO : exception
 	}
-	
+
 	return curveRedundancyInformation;
 }
 
-void Engines::getCurveArgTypes(std::string stringToParse, std::vector<std::string>* result)
+void Engines::getCurveArgTypes(std::string stringToParse, std::vector<std::string>& result)
 {
-	result->clear();
+	result.clear();
 
 	StringParser addressAndArgs(stringToParse);
 
-	result->push_back(addressAndArgs.getAddress());
+	result.push_back(addressAndArgs.getAddress());
 
 	for (unsigned int i = 0; i < addressAndArgs.getNbArg(); ++i) {
 		StringParser::argType currentType = addressAndArgs.getType(i);
 
 		if (currentType == StringParser::TYPE_FLOAT) {
-			result->push_back("FLOAT");
+			result.push_back("FLOAT");
 		} else if (currentType == StringParser::TYPE_INT) {
-			result->push_back("INT");
+			result.push_back("INT");
 		} else if (currentType == StringParser::TYPE_STRING) {
-			result->push_back("STRING");
+			result.push_back("STRING");
 		} else {
-			result->push_back("SYMBOL");
+			result.push_back("SYMBOL");
 		}
 	}
 }
 
 bool Engines::setCurveSections(unsigned int boxId, std::string address, unsigned int argNb,
-						   std::vector<float> percent, std::vector<float> y, std::vector<short> sectionType, std::vector<float> coeff)
+						   const std::vector<float> & percent, const std::vector<float> & y, const std::vector<short> & sectionType, const std::vector<float> & coeff)
 {
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
@@ -659,13 +684,29 @@ bool Engines::setCurveSections(unsigned int boxId, std::string address, unsigned
 	} else {
 		//TODO : exception
 	}
-	
+
 	return false;
 }
 
-bool Engines::getCurveValues(unsigned int boxId, std::string address, unsigned int argNb, std::vector<float>* result)
+bool Engines::getCurveSections(unsigned int boxId, std::string address, unsigned int argNb,
+		std::vector<float> & percent,  std::vector<float> & y,  std::vector<short> & sectionType,  std::vector<float> & coeff)
 {
-	result->clear();
+	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
+
+	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
+		SendNetworkMessageProcess* currentSendOSCProcess = (SendNetworkMessageProcess*) currentProcess;
+
+		return currentSendOSCProcess->getCurveSections(address, argNb, percent, y, sectionType, coeff);
+	} else {
+		//TODO : exception
+	}
+
+	return false;
+}
+
+bool Engines::getCurveValues(unsigned int boxId, const std::string & address, unsigned int argNb, std::vector<float>& result)
+{
+	result.clear();
 	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
 
 	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
@@ -681,14 +722,14 @@ bool Engines::getCurveValues(unsigned int boxId, std::string address, unsigned i
 
 
 
-unsigned int Engines::addTriggerPoint()
+unsigned int Engines::addTriggerPoint(unsigned int containingBoxId)
 {
-	return getEditor()->addTriggerPoint();
+	return getEditor()->addTriggerPoint(containingBoxId);
 }
 
 void Engines::removeTriggerPoint(unsigned int triggerId)
 {
-	m_implementation->m_networkController->removeTriggerPointLeave(triggerId);
+	//TODO: m_implementation->m_networkController->removeTriggerPointLeave(triggerId);
 	getEditor()->removeTriggerPoint(triggerId);
 }
 
@@ -704,7 +745,7 @@ void Engines::freeTriggerPointFromCtrlPoint(unsigned int triggerId)
 
 void Engines::setTriggerPointMessage(unsigned int triggerId, std::string triggerMessage)
 {
-	m_implementation->m_networkController->addTriggerPointLeave(triggerId, triggerMessage);
+	//TODO: m_implementation->m_networkController->addTriggerPointLeave(triggerId, triggerMessage);
 	getEditor()->setTriggerPointMessage(triggerId, triggerMessage);
 }
 
@@ -733,17 +774,17 @@ bool Engines::getTriggerPointMutingState(unsigned int triggerId)
 	return getEditor()->getTriggerPointMuteState(triggerId);
 }
 
-void Engines::getBoxesId(vector<unsigned int>* boxesID)
+void Engines::getBoxesId(vector<unsigned int>& boxesID)
 {
 	getEditor()->getAllBoxesId(boxesID);
 }
 
-void Engines::getRelationsId(vector<unsigned int>* relationsID)
+void Engines::getRelationsId(vector<unsigned int>& relationsID)
 {
 	getEditor()->getAllAntPostRelationsId(relationsID);
 }
 
-void Engines::getTriggersPointId(vector<unsigned int>* triggersID)
+void Engines::getTriggersPointId(vector<unsigned int>& triggersID)
 {
 	getEditor()->getAllTriggersId(triggersID);
 }
@@ -794,24 +835,20 @@ void Engines::compile()
 {
 	getExecutionMachine()->reset();
 
-	StoryLine* storyLine = new StoryLine(getEditor()->getCSP());
+	std::map<unsigned int, StoryLine> hierarchyStoryLine;
 
-	if (storyLine->m_constrainedBoxes.size() >= 1) {
-		getExecutionMachine()->compileECO(storyLine, getExecutionMachine()->getGotoInformation());
+	computeHierarchyStoryLine(ROOT_BOX_ID, getEditor()->getCSP(), hierarchyStoryLine);
+
+//	StoryLine storyLine(getEditor()->getCSP());
+
+	if (hierarchyStoryLine[ROOT_BOX_ID].m_constrainedBoxes.size() >= 1) {
+		getExecutionMachine()->compileECO(hierarchyStoryLine, getExecutionMachine()->getGotoInformation());
 	}
-
-	delete storyLine;
 }
 
 bool Engines::run()
 {
 	bool runIsOk = getExecutionMachine()->run();
-
-	if (runIsOk) {
-		usleep(50);
-		getExecutionMachine()->getPetriNet()->addTime(getExecutionMachine()->getGotoInformation() * 1000);
-		setExecutionSpeedFactor(getExecutionSpeedFactor());
-	}
 
 	return runIsOk;
 }
@@ -856,7 +893,7 @@ bool Engines::receiveNetworkMessage(std::string netMessage)
 	}
 }
 
-void Engines::simulateNetworkMessageReception(std::string netMessage)
+void Engines::simulateNetworkMessageReception(const std::string & netMessage)
 {
 	std::string value("");
 	receiveNetworkMessageCallBack(this, netMessage, "", value);
@@ -865,16 +902,16 @@ void Engines::simulateNetworkMessageReception(std::string netMessage)
 //	}
 }
 
-void Engines::getLoadedNetworkPlugins(std::vector<std::string>* pluginsName, std::vector<unsigned int>* listeningPort)
+void Engines::getLoadedNetworkPlugins(std::vector<std::string>& pluginsName, std::vector<unsigned int>& listeningPort)
 {
-	*pluginsName = m_implementation->m_networkController->pluginGetLoadedByName();
+	pluginsName = m_implementation->m_networkController->pluginGetLoadedByName();
 
-	for (unsigned int i = 0; i < pluginsName->size(); ++i) {
-		listeningPort->push_back(toInt(m_implementation->m_networkController->pluginGetCommParameter(pluginsName->at(i), "pluginReceptionPort")));
+	for (unsigned int i = 0; i < pluginsName.size(); ++i) {
+		listeningPort.push_back(toInt(m_implementation->m_networkController->pluginGetCommParameter(pluginsName[i], "pluginReceptionPort")));
 	}
 }
 
-void Engines::addNetworkDevice(std::string deviceName, std::string pluginToUse, std::string DeviceIp, std::string DevicePort)
+void Engines::addNetworkDevice(const std::string & deviceName, const std::string & pluginToUse, const std::string & DeviceIp, const std::string & DevicePort)
 {
 	//m_implementation->m_networkController->addDevice(deviceName, pluginToUse, DeviceIp, DevicePort);
 	std::map<std::string, std::string>* commParameters = new std::map<std::string, std::string>();
@@ -888,17 +925,17 @@ void Engines::addNetworkDevice(std::string deviceName, std::string pluginToUse, 
 
 }
 
-void Engines::removeNetworkDevice(std::string deviceName)
+void Engines::removeNetworkDevice(const std::string & deviceName)
 {
 	m_implementation->m_networkController->deviceRemove(deviceName);
 }
 
-void Engines::sendNetworkMessage(std::string stringToSend)
+void Engines::sendNetworkMessage(const std::string & stringToSend)
 {
-	m_implementation->m_networkController->deviceSendSetRequest(stringToSend); 
+	m_implementation->m_networkController->deviceSendSetRequest(stringToSend);
 }
 
-void Engines::getNetworkDevicesName(std::vector<std::string>* devicesName, std::vector<bool>* couldSendNamespaceRequest)
+void Engines::getNetworkDevicesName(std::vector<std::string>& devicesName, std::vector<bool>& couldSendNamespaceRequest)
 {
 	std::map<std::string, Device*> mapDevices = *(m_implementation->m_networkController->deviceGetCurrent());
 
@@ -906,27 +943,25 @@ void Engines::getNetworkDevicesName(std::vector<std::string>* devicesName, std::
 
 	while (it != mapDevices.end()) {
 		if (m_implementation->m_networkController->deviceIsVisible(it->first)) {
-			devicesName->push_back(it->first);
-			if (couldSendNamespaceRequest != NULL) {
-				couldSendNamespaceRequest->push_back(m_implementation->m_networkController->deviceUnderstandDiscoverRequest(it->first));
-			}
+			devicesName.push_back(it->first);
+			couldSendNamespaceRequest.push_back(m_implementation->m_networkController->deviceUnderstandDiscoverRequest(it->first));
 		}
 
 		++it;
 	}
 }
 
-std::vector<std::string> Engines::requestNetworkSnapShot(std::string address)
+std::vector<std::string> Engines::requestNetworkSnapShot(const std::string & address)
 {
 	return m_implementation->m_networkController->deviceSnapshot(address);
 }
 
-int Engines::requestNetworkNamespace(std::string address, vector<string>* nodes, vector<string>* leaves, vector<string>* attributs, vector<string>* attributsValue)
+int Engines::requestNetworkNamespace(const std::string & address, vector<string>& nodes, vector<string>& leaves, vector<string>& attributs, vector<string>& attributsValue)
 {
 //	int state = TIMEOUT_EXCEEDED;
 //	bool namespaceSent = true;
-	
-	return m_implementation->m_networkController->deviceSendDiscoverRequest(address, nodes, leaves, attributs, attributsValue);
+
+	return m_implementation->m_networkController->deviceSendDiscoverRequest(address, &nodes, &leaves, &attributs, &attributsValue);
 
 //	namespaceSent = m_implementation->m_networkController->sendNamespaceRequest(address);
 //
@@ -979,7 +1014,7 @@ void Engines::load(std::string fileName)
 	xmlChar* xmlScenarioSize = xmlGetProp(racine, BAD_CAST "scenarioSize");
 
 	(void) version;
-	
+
 	int scenarioSize = XMLConversion::xmlCharToInt(xmlScenarioSize);
 
 	reset(scenarioSize);
@@ -1001,10 +1036,35 @@ void Engines::load(std::string fileName)
 }
 
 void Engines::load(std::string fileName,
-				   void(*crossAction)(unsigned int, unsigned int),
+				   void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 				   void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string))
 {
 	load(fileName);
+
+	if (crossAction != NULL) {
+		addCrossingCtrlPointCallback(crossAction);
+	}
+
+	if (triggerAction != NULL) {
+		addCrossingTrgPointCallback(triggerAction);
+	}
+}
+
+void Engines::storeUsingAntoineFormat(std::string fileName)
+{
+
+}
+
+void Engines::loadUsingAntoineFormat(std::string fileName)
+{
+
+}
+
+void Engines::loadUsingAntoineFormat(std::string fileName,
+							void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
+							void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string))
+{
+	loadUsingAntoineFormat(fileName);
 
 	if (crossAction != NULL) {
 		addCrossingCtrlPointCallback(crossAction);
@@ -1027,7 +1087,7 @@ void Engines::print() {
 
 void Engines::printExecutionInLinuxConsole()
 {
-	std::vector<unsigned int>* boxesId = new std::vector<unsigned int>();
+	std::vector<unsigned int> boxesId;
 
 	getBoxesId(boxesId);
 
@@ -1037,10 +1097,10 @@ void Engines::printExecutionInLinuxConsole()
 		if ((getCurrentExecutionTime()/60)%2 == 0) {
 			if (mustDisplay) {
 				std::system("clear");
-				for (unsigned int i = 0; i < boxesId->size(); ++i) {
+				for (unsigned int i = 0; i < boxesId.size(); ++i) {
 					unsigned int processPercent;
 
-					processPercent = getProcessProgression(boxesId->at(i));
+					processPercent = getProcessProgression(boxesId[i]);
 
 					if ((processPercent > 0) && (processPercent < 99)) {
 						std::cout << "[*";

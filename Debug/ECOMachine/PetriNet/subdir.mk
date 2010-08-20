@@ -12,6 +12,7 @@ CPP_SRCS += \
 ../ECOMachine/PetriNet/Place.cpp \
 ../ECOMachine/PetriNet/PriorityTransitionAction.cpp \
 ../ECOMachine/PetriNet/ThreadSafeList.cpp \
+../ECOMachine/PetriNet/Token.cpp \
 ../ECOMachine/PetriNet/Transition.cpp \
 ../ECOMachine/PetriNet/TransitionAction.cpp \
 ../ECOMachine/PetriNet/TransitionBitArray.cpp 
@@ -25,6 +26,7 @@ OBJS += \
 ./ECOMachine/PetriNet/Place.o \
 ./ECOMachine/PetriNet/PriorityTransitionAction.o \
 ./ECOMachine/PetriNet/ThreadSafeList.o \
+./ECOMachine/PetriNet/Token.o \
 ./ECOMachine/PetriNet/Transition.o \
 ./ECOMachine/PetriNet/TransitionAction.o \
 ./ECOMachine/PetriNet/TransitionBitArray.o 
@@ -38,6 +40,7 @@ CPP_DEPS += \
 ./ECOMachine/PetriNet/Place.d \
 ./ECOMachine/PetriNet/PriorityTransitionAction.d \
 ./ECOMachine/PetriNet/ThreadSafeList.d \
+./ECOMachine/PetriNet/Token.d \
 ./ECOMachine/PetriNet/Transition.d \
 ./ECOMachine/PetriNet/TransitionAction.d \
 ./ECOMachine/PetriNet/TransitionBitArray.d 

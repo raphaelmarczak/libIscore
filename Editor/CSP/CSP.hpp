@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -128,7 +128,7 @@ public :
 	 *
 	 * \param boxId : the ID of the box to remove
 	 */
-	void removeBox(unsigned int boxId);
+	void removeBox(unsigned int boxId, std::vector<unsigned int>& relationsRemoved, std::vector<unsigned int>& triggersRemoved);
 
 	/*!
 	 * Adds a AntPostRelation between two controlPoints.
@@ -142,7 +142,7 @@ public :
 	 *
 	 * \return the newly created relation id (NO_ID if the creation is impossible).
 	 */
-	unsigned int addAntPostRelation(unsigned int relationId, unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>* movedBoxes, bool mustCallSolver = true);
+	unsigned int addAntPostRelation(unsigned int relationId, unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound, vector<unsigned int>& movedBoxes, bool mustCallSolver = true);
 
 	/*!
 	 * Removes the temporal relation using given id.
@@ -170,8 +170,8 @@ public :
 	 *
 	 * \return true if the move is allowed or false if the move is forbidden
 	 */
-	bool performMoving(unsigned int boxId, int x, int y, vector<unsigned int>* movedBoxes);
-	bool performMoving(unsigned int boxId, int x, int y, vector<unsigned int>* movedBoxes, unsigned int maxModification);
+	bool performMoving(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes);
+	bool performMoving(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification);
 
 	// Get the links implicating one particular entity
 	vector<BinaryTemporalRelation*> *links(ConstrainedTemporalEntity *ent) const;
@@ -264,7 +264,7 @@ public :
 	 */
 	void removeControlPointMessageToSend(unsigned int boxId, unsigned int controlPointIndex);
 
-	void getTriggerPointMap(std::map<unsigned int, TriggerPoint *>* triggerPoints);
+	void getTriggerPointMap(std::map<unsigned int, TriggerPoint *>& triggerPoints);
 
 	/*!
 	 * Gets the triggerPoint matching the given ID.
@@ -345,23 +345,23 @@ public :
 	 *
 	 * \param boxesId : the vector to fill with all the boxes ID in this CSP.
 	 */
-	void getAllBoxesId(vector<unsigned int>* boxesID);
-	void getAllAntPostRelationsId(vector<unsigned int>* relationsID);
-	void getAllTriggersId(vector<unsigned int>* triggersID);
+	void getAllBoxesId(vector<unsigned int>& boxesID);
+	void getAllAntPostRelationsId(vector<unsigned int>& relationsID);
+	void getAllTriggersId(vector<unsigned int>& triggersID);
 
-	void getAllAntPostRelations(vector<AntPostRelation*>* antPostRelations);
+	void getAllAntPostRelations(vector<AntPostRelation*>& antPostRelations);
 	AntPostRelation* getAntPostRelationById(unsigned int relationID);
 
 	bool areControlPointsInRelation(ControlPoint* cp1, ControlPoint* cp2);
 
 	void store(xmlNodePtr father);
-	void load(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap, 
-			std::map<unsigned int, CSP*>& relationsMap, 
-			std::map<unsigned int, CSP*>& triggersMap, 
+	void load(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap,
+			std::map<unsigned int, CSP*>& relationsMap,
+			std::map<unsigned int, CSP*>& triggersMap,
 			ConstrainedBox* motherBox);
-	void loadBoxes(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap, 
-			std::map<unsigned int, CSP*>& relationsMap, 
-			std::map<unsigned int, CSP*>& triggersMap, 
+	void loadBoxes(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap,
+			std::map<unsigned int, CSP*>& relationsMap,
+			std::map<unsigned int, CSP*>& triggersMap,
 			ConstrainedBox* motherBox);
 	void loadRelations(xmlNodePtr root, std::map<unsigned int, CSP*>& relationsMap);
 	void loadTriggerPoints(xmlNodePtr root, std::map<unsigned int, CSP*>& triggersMap);
@@ -369,7 +369,7 @@ public :
 	unsigned int getMaxBoxId();
 	unsigned int getMaxRelationId();
 	unsigned int getMaxTriggerId();
-	
+
 	void changeAllBoxMaxSceneWidth(int newValue);
 
 private :

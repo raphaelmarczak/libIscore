@@ -23,7 +23,9 @@ C_UPPER_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+libController \
 StoryLine \
+EnginesPrivate \
 . \
 Editor/gecode-solver \
 Editor \
@@ -31,5 +33,4 @@ Editor/CSP \
 ECOMachine \
 ECOMachine/Process \
 ECOMachine/PetriNet \
-Controller \
 

@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -104,12 +104,36 @@ bool NetworkMessageCurves::addCurvesPoints(unsigned int argNb, std::vector<float
 		m_argCurves.resize(argNb + 1);
 	}
 
+	for (unsigned int i = 0; i < percent.size(); ++i) {
+		percent[i] = percent[i] * 100;
+	}
+
 	return m_argCurves[argNb].setSections(percent, y, sectionType, coeff);
 }
 
-bool NetworkMessageCurves::getCurves(StringParser firstMessage, StringParser lastMessage, unsigned int argNb, unsigned int duration, std::vector<float>* result)
+bool NetworkMessageCurves::getCurveSections(unsigned int argNb, std::vector<float>& xPercents,  std::vector<float>& yValues,  std::vector<short>& sectionType,  std::vector<float>& coeff)
 {
-	result->clear();
+	xPercents.clear();
+	yValues.clear();
+	sectionType.clear();
+	coeff.clear();
+
+	if (m_argCurves.size() <= argNb) {
+		return false;
+	}
+
+	m_argCurves[argNb].getSections(xPercents, yValues, sectionType, coeff);
+
+	for (unsigned int i = 0; i < xPercents.size(); ++i) {
+		xPercents[i] = xPercents[i] / 100;
+	}
+
+	return true;
+}
+
+bool NetworkMessageCurves::getCurves(StringParser firstMessage, StringParser lastMessage, unsigned int argNb, unsigned int duration, std::vector<float>& result)
+{
+	result.clear();
 
 	if ((firstMessage.getNbArg() <= argNb) || (lastMessage.getNbArg() <= argNb)) {
 		return false;
@@ -155,10 +179,10 @@ bool NetworkMessageCurves::getCurves(StringParser firstMessage, StringParser las
 		std::vector<float> curveFloat = m_argCurves[argNb].getFloatCurve();
 
 		for (unsigned int i = 0; i < curveFloat.size() ; ++i) {
-			result->push_back(curveFloat[i]);
+			result.push_back(curveFloat[i]);
 		}
 
-		result->push_back(toFloat(endValue));
+		result.push_back(toFloat(endValue));
 
 		return true;
 	}
@@ -167,14 +191,14 @@ bool NetworkMessageCurves::getCurves(StringParser firstMessage, StringParser las
 		std::vector<int> curveInt = m_argCurves[argNb].getIntCurve();
 
 		for (unsigned int i = 0; i < curveInt.size() ; ++i) {
-			result->push_back(curveInt[i]);
+			result.push_back(curveInt[i]);
 		}
 
-		result->push_back(toInt(endValue));
+		result.push_back(toInt(endValue));
 
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -288,78 +312,73 @@ void NetworkMessageCurves::store(xmlNodePtr father)
 {
 	xmlNodePtr node = NULL;
 	xmlNodePtr argNode = NULL;
-	
+
 	node = xmlNewNode(NULL, BAD_CAST "CURVE_INFORMATION");
-	
+
 	std::ostringstream oss;
-	
+
 	xmlSetProp(node, BAD_CAST "address", BAD_CAST m_address.data());
-	
+
 	oss.str("");
 	oss << (m_sampleBySec);
-	
+
 	xmlSetProp(node, BAD_CAST "samplerate", BAD_CAST oss.str().data());
-	
+
 	if (m_avoidRedondance) {
 		xmlSetProp(node, BAD_CAST "avoidRedundancy", BAD_CAST "true");
 	} else {
 		xmlSetProp(node, BAD_CAST "avoidRedundancy", BAD_CAST "false");
 	}
-	
+
 	xmlAddChild(father, node);
-	
+
 	for (unsigned int i = 0; i < m_argCurves.size() ; ++i) {
 		argNode = xmlNewNode(NULL, BAD_CAST "ARGUMENT");
-		
+
 		oss.str("");
 		oss << i;
-		
+
 		xmlSetProp(argNode, BAD_CAST "nb", BAD_CAST oss.str().data());
-		
-		std::vector<float>* percent = new std::vector<float>;
-		std::vector<float>* y = new std::vector<float>;
-		std::vector<short>* sectionType = new std::vector<short>; 
-		std::vector<float>* coeff = new std::vector<float>;
-		
+
+		std::vector<float> percent;
+		std::vector<float> y;
+		std::vector<short> sectionType;
+		std::vector<float> coeff;
+
 		m_argCurves[i].getSections(percent, y, sectionType, coeff);
-		
-		for (unsigned int j = 0; j < percent->size() ; ++j) {
+
+		for (unsigned int j = 0; j < percent.size() ; ++j) {
 			xmlNodePtr coordinatesNode = xmlNewNode(NULL, BAD_CAST "COORDINATE");
-			
+
 			oss.str("");
-			oss << percent->at(j);
-			
+			oss << percent.at(j);
+
 			xmlSetProp(coordinatesNode, BAD_CAST "x_percent", BAD_CAST oss.str().data());
-			
+
 			oss.str("");
-			oss << y->at(j);
-			
+			oss << y.at(j);
+
 			xmlSetProp(coordinatesNode, BAD_CAST "y_value", BAD_CAST oss.str().data());
-			
+
 			xmlAddChild(argNode, coordinatesNode);
 		}
-		
-		for (unsigned int j = 0; j < sectionType->size() ; ++j) {
+
+		for (unsigned int j = 0; j < sectionType.size() ; ++j) {
 			xmlNodePtr sectionNode = xmlNewNode(NULL, BAD_CAST "SECTION");
-			
-			if (sectionType->at(i) == CURVE_POW) {
+
+			if (sectionType.at(i) == CURVE_POW) {
 				xmlSetProp(sectionNode, BAD_CAST "section_type", BAD_CAST "pow");
 			}
-			
+
 			oss.str("");
-			oss << coeff->at(j);
+			oss << coeff.at(j);
 
 			xmlSetProp(sectionNode, BAD_CAST "coeff", BAD_CAST oss.str().data());
-					
+
 			xmlAddChild(argNode, sectionNode);
 		}
-		
-		delete coeff;
-		delete sectionType;
-		delete y;
-		delete percent;
-		
-		
+
+
 		xmlAddChild(node, argNode);
 	}
 }

@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -54,7 +54,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
 
 #define CURVE_POW 1
 
-#include "CSPTypes.hpp"  
+#include "CSPTypes.hpp"
 
 #define ENGINE_VERSION "0.8"
 
@@ -63,8 +63,8 @@ knowledge of the CeCILL-C license and that you accept its terms.
 
 class EnginesPrivate;
 class ECOMachine;
-class Editor; 
- 
+class Editor;
+
 enum EnginesMessageManagement { UNKNOWN_MESSAGE, TRIGGER_MESSAGE, ENGINES_PLAY, ENGINES_PAUSE_MODIFICATION, ENGINES_STOP, ENGINES_SPEED_MODIFICATION, ENGINES_REWIND, ENGINES_GOTO_MODIFICATION };
 
 /*!
@@ -105,7 +105,7 @@ public:
 	 * (with a stop action, or because the scenario ended normally).
 	 * \param plugginsLocation : (optional) network plugins location (absolute).
 	 */
-	Engines(void(*crossAction)(unsigned int, unsigned int),
+	Engines(void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 			void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string),
 			void(*isExecutionFinished)(),
 			unsigned int scenarioSize = SCENARIO_SIZE,
@@ -130,7 +130,7 @@ public:
 	 * This callback gives information about its waiting state, the trigger id, the box id, the control point index
 	 * and the waited network message.
 	 */
-	void reset(void(*crossAction)(unsigned int, unsigned int),
+	void reset(void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 			void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string),
 			unsigned int scenarioSize = SCENARIO_SIZE);
 
@@ -141,13 +141,13 @@ public:
 	 *
 	 * \param pt2Func : the callback.
 	 */
-	void addCrossingCtrlPointCallback(void(*pt2Func)(unsigned int, unsigned int));
-	
+	void addCrossingCtrlPointCallback(void(*pt2Func)(unsigned int, unsigned int, std::vector<unsigned int>));
+
 	/*!
 	 * Removes the callback called during the execution when a control point is crossed.
 	 */
 	void removeCrossingCtrlPointCallback();
-	
+
 	/*!
 	 * Adds the callback called during the execution when a control point is crossed.
 	 * This callback gives information about the box id, and the control point index.
@@ -173,10 +173,10 @@ public:
 	 * Removes the callback called when the execution is finished
 	 */
 	void removeExecutionFinishedCallback();
-	
+
 	void addEnginesNetworkUpdateCallback(void(*pt2Func)(unsigned int, std::string, std::string));
 	void removeEnginesNetworkUpdateCallback();
-	
+
 
 
 
@@ -245,8 +245,8 @@ public:
 	 */
 	unsigned int addTemporalRelation(unsigned int boxId1, unsigned int controlPoint1,
 			unsigned int boxId2, unsigned int controlPoint2, TemporalRelationType type,
-			std::vector<unsigned int>* movedBoxes = NULL);
-	
+			std::vector<unsigned int>& movedBoxes);
+
 	/*!
 	 * Adds a AntPostRelation between two controlPoints, with min bound and max bound for relation length.
 	 *
@@ -263,7 +263,7 @@ public:
 	 */
 	unsigned int addTemporalRelation(unsigned int boxId1, unsigned int controlPoint1, unsigned int boxId2,
 			unsigned int controlPoint2, TemporalRelationType type, int minBound, int maxBound,
-			std::vector<unsigned int>* movedBoxes = NULL);
+			std::vector<unsigned int>& movedBoxes);
 
 	/*!
 	 * Changes min bound and max bound for the relation length.
@@ -273,8 +273,8 @@ public:
 	 * \param maxBound : the max bound for the box relation in ms. NO_BOUND if the max bound is not used (+infinity).
 	 * \param movedBoxes : empty vector, will be filled with the ID of the boxes moved by this new relation.
 	 */
-	void changeTemporalRelationBounds(unsigned int relationId, int minBound, int maxBound, std::vector<unsigned int>* movedBoxes = NULL);
-	
+	void changeTemporalRelationBounds(unsigned int relationId, int minBound, int maxBound, std::vector<unsigned int>& movedBoxes);
+
 	/*!
 	 * Checks if a relation exists between the two given control points.
 	 *
@@ -286,7 +286,7 @@ public:
 	 * \return true if a relation exists between the two given control points.
 	 */
 	bool isTemporalRelationExisting(unsigned int boxId1, unsigned int controlPoint1Index, unsigned int boxId2, unsigned int controlPoint2Index);
-	
+
 	/*!
 	 * Removes the temporal relation using given id.
 	 *
@@ -330,6 +330,9 @@ public:
 	 */
 	unsigned int getRelationSecondCtrlPointIndex(unsigned int relationId);
 
+	int getRelationMinBound(unsigned int relationId);
+	int getRelationMaxBound(unsigned int relationId);
+
 	/*!
 	 * Calculates the optimal system after an editing operation
 	 *
@@ -344,8 +347,8 @@ public:
 	 *
 	 * \return true if the move is allowed or false if the move is forbidden
 	 */
-	bool performBoxEditing(unsigned int boxId, int x, int y, std::vector<unsigned int>* movedBoxes, unsigned int maxModification = NO_MAX_MODIFICATION);
-	
+	bool performBoxEditing(unsigned int boxId, int x, int y, std::vector<unsigned int>& movedBoxes, unsigned int maxModification = NO_MAX_MODIFICATION);
+
 	/*!
 	 * Gets the begin value of the box matching the given ID
 	 *
@@ -367,7 +370,7 @@ public:
 	 * \return the end value of the box matching the given ID
 	 */
 	int getBoxEndTime(unsigned int boxId);
-	
+
 	/*!
 	 * Gets the end duration of the box matching the given ID
 	 *
@@ -410,7 +413,7 @@ public:
 	 *
 	 * \return the index of the first control point (the right one)
 	 */
-	int getBoxLastCtrlPointIndex(unsigned int boxId); 
+	int getBoxLastCtrlPointIndex(unsigned int boxId);
 
 	/*!
 	 * Sets the message to send (via Network) when the given controlPoint is reached.
@@ -423,7 +426,7 @@ public:
 	 * \param muteState : (optional) true if the messages must be stored but not sent.
 	 */
 	void setCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex, std::vector<std::string> messageToSend, bool muteState = false);
-	
+
 	/*!
 	 * Gets the message to send (via Network) when the given controlPoint is reached, in a vector given as parameter.
 	 *
@@ -433,8 +436,8 @@ public:
 	 * \param controlPointIndex : the index of the control point to set message.
 	 * \param messages : vector to fill with all messages that will be sent (the result)
 	 */
-	void getCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex, std::vector<std::string>* messages);
-	
+	void getCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex, std::vector<std::string>& messages);
+
 	/*!
 	 * Removes the message to send (via Network) when the given controlPoint is reached.
 	 *
@@ -444,7 +447,7 @@ public:
 	 * \param controlPointIndex : the index of the point to remove message
 	 */
 	void removeCtrlPointMessagesToSend(unsigned int boxId, unsigned int controlPointIndex);
-	
+
 	/*!
 	 * Sets the control point mute state. If muted, the messages related to this control point will not be send.
 	 *
@@ -453,7 +456,7 @@ public:
 	 * \param mute : the mute state to set (true or false).
 	 */
 	void setCtrlPointMutingState(unsigned int boxId, unsigned int controlPointIndex, bool mute);
-	
+
 	/*!
 	 * Gets the control point mute state.
 	 *
@@ -471,7 +474,7 @@ public:
 	 * \param mute : the mute state to set (true or false).
 	 */
 	void setProcessMutingState(unsigned int boxId, bool mute);
-	
+
 	/*!
 	 * Gets the box content mute state.
 	 *
@@ -480,7 +483,7 @@ public:
 	 * \return the mute state (true or false).
 	 */
 	bool getProcessMutingState(unsigned int boxId);
-	
+
 	/*!
 	 * Sets all control points and content the same mute state.
 	 *
@@ -488,7 +491,7 @@ public:
 	 * \param mute : the mute state to set (true or false).
 	 */
 	void setBoxMutingState(unsigned int boxId, bool mute);
-	
+
 
 
 
@@ -512,15 +515,15 @@ public:
 	 * \param boxId : the Id of the box.
 	 * \param address : the curve address.
 	 */
-	void addCurve(unsigned int boxId, std::string address);
-	
+	void addCurve(unsigned int boxId, const std::string & address);
+
 	/*!
 	 * Removes the address from the box, and so the matching curve.
 	 *
 	 * \param boxId : the Id of the box.
 	 * \param address : the curve address.
 	 */
-	void removeCurve(unsigned int boxId, std::string address);
+	void removeCurve(unsigned int boxId, const std::string & address);
 
 	/*!
 	 * Removes all curve address from the box.
@@ -537,7 +540,7 @@ public:
 	 * \return all curves addresses in a vector.
 	 */
 	std::vector<std::string> getCurvesAddress(unsigned int boxId);
-	
+
 	/*!
 	 * Changes the sample rate of a curve.
 	 *
@@ -545,7 +548,7 @@ public:
 	 * \param address : curve address.
 	 * \param nbSamplesBySec : new sample rate.
 	 */
-	void setCurveSampleRate(unsigned int boxId, std::string address, unsigned int nbSamplesBySec);
+	void setCurveSampleRate(unsigned int boxId, const std::string & address, unsigned int nbSamplesBySec);
 
 	/*!
 	 * Gets the sample rate of a curve.
@@ -555,7 +558,7 @@ public:
 	 *
 	 * \return the sample rate (0 if this address is not present as a curve).
 	 */
-	unsigned int getCurveSampleRate(unsigned int boxId, std::string address);
+	unsigned int getCurveSampleRate(unsigned int boxId, const std::string & address);
 
 	/*!
 	 * Changes the avoid redundancy information of a curve.
@@ -566,8 +569,8 @@ public:
 	 * \param address : curve address.
 	 * \param avoidRedundancy : new redundancy information.
 	 */
-	void setCurveRedundancy(unsigned int boxId, std::string address, bool avoidRedundancy);
-	
+	void setCurveRedundancy(unsigned int boxId, const std::string & address, bool redundancy);
+
 	/*!
 	 * Gets the avoid redundancy information of a curve.
 	 *
@@ -576,7 +579,7 @@ public:
 	 *
 	 * \return the avoid redundancy information.
 	 */
-	bool getCurveRedundancy(unsigned int boxId, std::string address);
+	bool getCurveRedundancy(unsigned int boxId, const std::string & address);
 
 	/*!
 	 * Gets all arguments type of a given string. Useful too for getting the address information of a message.
@@ -588,8 +591,8 @@ public:
 	 * \param stringToParse : the string to parse.
 	 * \param result : the result vector.
 	 */
-	void getCurveArgTypes(std::string stringToParse, std::vector<std::string>* result);
-	
+	void getCurveArgTypes(std::string stringToParse, std::vector<std::string>& result);
+
 	/*!
 	 * Sets sections informations for sending more complicated curves.
 	 *
@@ -627,7 +630,10 @@ public:
 	 * \return true if the new information about section is correct and correctly set.
 	 */
 	bool setCurveSections(unsigned int boxId, std::string address, unsigned int argNb,
-				std::vector<float> xPercents, std::vector<float> yValues, std::vector<short> sectionType, std::vector<float> coeff);
+				const std::vector<float>& xPercents, const std::vector<float>& yValues, const std::vector<short>& sectionType, const std::vector<float>& coeff);
+
+	bool getCurveSections(unsigned int boxId, std::string address, unsigned int argNb,
+							    std::vector<float> & percent,  std::vector<float> & y,  std::vector<short> & sectionType,  std::vector<float> & coeff);
 
 	/*!
 	 * Gets the curve values at it will be sent, at the previously set sampleRate.
@@ -642,7 +648,7 @@ public:
 	 *
 	 * \return false if the curve could not be compute, or if the argument is a string.
 	 */
-	bool getCurveValues(unsigned int boxId, std::string address, unsigned int argNb, std::vector<float>* result);
+	bool getCurveValues(unsigned int boxId, const std::string & address, unsigned int argNb, std::vector<float>& result);
 
 
 
@@ -651,7 +657,7 @@ public:
 	 *
 	 * \return the created trigger ID
 	 */
-	unsigned int addTriggerPoint();
+	unsigned int addTriggerPoint(unsigned int containingBoxId);
 
 	/*!
 	 * Removes the triggerPoint from the CSP.
@@ -674,7 +680,7 @@ public:
 	 * \return false if the controlPoint is already linked to another triggerPoint.
 	 */
 	bool assignCtrlPointToTriggerPoint(unsigned int triggerId, unsigned int boxId, unsigned int controlPointIndex);
-	
+
 	/*!
 	 * Removes the controlPoint linked with the triggerPoint (given by ID).
 	 *
@@ -724,7 +730,7 @@ public:
 	 * NO_ID if the trigger point is not linked to a control point.
 	 */
 	unsigned int getTriggerPointRelatedCtrlPointIndex(unsigned int triggerId);
-	
+
 	/*!
 	 * Sets the triggerPoint mute state.
 	 *
@@ -748,7 +754,7 @@ public:
 	 *
 	 * \param boxesID : the vector to fill with all boxes ID used.
 	 */
-	void getBoxesId(std::vector<unsigned int>* boxesID);
+	void getBoxesId(std::vector<unsigned int>& boxesID);
 
 	/*!
 	 * Fills the given vector with all the relations ID used in the editor.
@@ -756,7 +762,7 @@ public:
 	 *
 	 * \param relationsId : the vector to fill with all relations ID used.
 	 */
-	void getRelationsId(std::vector<unsigned int>* relationsID);
+	void getRelationsId(std::vector<unsigned int>& relationsID);
 
 	/*!
 	 * Fills the given vector with all the triggers ID used in the editor.
@@ -764,8 +770,8 @@ public:
 	 *
 	 * \param triggersID : the vector to fill with all triggers ID used.
 	 */
-	void getTriggersPointId(std::vector<unsigned int>* triggersID);
-	
+	void getTriggersPointId(std::vector<unsigned int>& triggersID);
+
 
 
 
@@ -773,7 +779,7 @@ public:
 
 	void setGotoValue(unsigned int gotoValue);
 	unsigned int getGotoValue();
-		
+
 	/*!
 	 * Plays the scenario (compiles and runs it).
 	 *
@@ -789,9 +795,9 @@ public:
 	 * \return true if the ECOMachine will actually stop.
 	 */
 	bool stop();
-	
+
 	void pause(bool pauseValue);
-	
+
 	bool isPaused();
 
 	/*!
@@ -828,15 +834,15 @@ public:
 	 * \return the execution time in milliseconds.
 	 */
 	unsigned int getCurrentExecutionTime();
-	
+
 	/*!
 	 * Changes the execution speed.
 	 *
 	 * \param factor: the new speed factor.
 	 */
 	void setExecutionSpeedFactor(float factor);
-	
-	float getExecutionSpeedFactor(); 
+
+	float getExecutionSpeedFactor();
 
 	/*!
 	 * Gets the progression of a process (in percent).
@@ -851,14 +857,14 @@ public:
 	 * The ECOMachine must be in running state.
 	 */
 	void ignoreTriggerPointOnce();
-	
-	
-	
+
+
+
 
 	//Network //////////////////////////////////////////////////////////////////////////////////////////////
 
 
-	
+
 
 	/*!
 	 * Same behavior as receiveNetworkMessage function, but must be used by a user to simulate a network message reception.
@@ -868,15 +874,15 @@ public:
 	 *
 	 * \param netMessage : the network message received.
 	 */
-	void simulateNetworkMessageReception(std::string netMessage);
-	
+	void simulateNetworkMessageReception(const std::string & netMessage);
+
 	/*!
 	 * Fills the given vectors with all the loaded network plugins and the matching listening ports.
 	 *
 	 * \param pluginsName : will be filled with all loaded plugins names.
 	 * \param listeningPort : will be filled with matching listening port.
 	 */
-	void getLoadedNetworkPlugins(std::vector<std::string>* pluginsName, std::vector<unsigned int>* listeningPort);
+	void getLoadedNetworkPlugins(std::vector<std::string>& pluginsName, std::vector<unsigned int>& listeningPort);
 
 	/*!
 	 * Adds a network device.
@@ -887,15 +893,15 @@ public:
 	 * \param deviceIp : the ip of the network device.
 	 * \param devicePort : the port of the network device.
 	 */
-	void addNetworkDevice(std::string deviceName, std::string pluginToUse, std::string deviceIp, std::string devicePort);
-	
+	void addNetworkDevice(const std::string & deviceName, const std::string & pluginToUse, const std::string & deviceIp, const std::string & devicePort);
+
 	/*!
 	 * Removes a network device.
 	 *
 	 * \param deviceName : device name to remove from the network controller.
 	 */
-	void removeNetworkDevice(std::string deviceName);
-	
+	void removeNetworkDevice(const std::string & deviceName);
+
 	/*!
 	 * Sends a network message.
 	 * The message must look like this :
@@ -905,8 +911,8 @@ public:
 	 *
 	 * \param stringToSend : the string to send using network.
 	 */
-	void sendNetworkMessage(std::string stringToSend);
-	
+	void sendNetworkMessage(const std::string & stringToSend);
+
 	/*!
 	 * Fills the given vectors with all network devices name, and matching information about if they could send namespace request.
 	 *
@@ -914,8 +920,8 @@ public:
 	 * \param couldSendNamespaceRequest : will be filled with information about if the matching device could
 	 * send namespace request.
 	 */
-	void getNetworkDevicesName(std::vector<std::string>* devicesName, std::vector<bool>* couldSendNamespaceRequest = NULL);
-	
+	void getNetworkDevicesName(std::vector<std::string>& devicesName, std::vector<bool>& couldSendNamespaceRequest);
+
 	/*!
 	 * Sends a network snapshot request.
 	 * The address must look like this :
@@ -927,7 +933,7 @@ public:
 	 *
 	 * \return the snapshot as a string vector.
 	 */
-	std::vector<std::string> requestNetworkSnapShot(std::string address);
+	std::vector<std::string> requestNetworkSnapShot(const std::string & address);
 
 	/*!
 	 * Sends a network namespace request.
@@ -946,10 +952,10 @@ public:
 	 *
 	 * \return the result of the namespace request. TIMEOUT_EXCEEDED (time out exceed), ANSWER_RECEIVED (answer received).
 	 */
-	int requestNetworkNamespace(std::string address,
-						 std::vector<std::string>* nodes, std::vector<std::string>* leaves,
-						 std::vector<std::string>* attributs, std::vector<std::string>* attributsValue);
-	
+	int requestNetworkNamespace(const std::string & address,
+						 std::vector<std::string>& nodes, std::vector<std::string>& leaves,
+						 std::vector<std::string>& attributs, std::vector<std::string>& attributsValue);
+
 
 
 
@@ -983,8 +989,16 @@ public:
 	 * and the waited network message.
 	 */
 	void load(std::string fileName,
-			void(*crossAction)(unsigned int, unsigned int),
+			void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
 			void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string));
+
+	void storeUsingAntoineFormat(std::string fileName);
+
+	void loadUsingAntoineFormat(std::string fileName);
+
+	void loadUsingAntoineFormat(std::string fileName,
+								void(*crossAction)(unsigned int, unsigned int, std::vector<unsigned int>),
+								void(*triggerAction)(bool, unsigned int, unsigned int, unsigned int, std::string));
 
 	/*!
 	 * Prints on standard output both engines. Useful only for debug purpose.
@@ -1018,7 +1032,7 @@ private:
 	EnginesPrivate* m_implementation;
 
 	void initializeObjects(unsigned int maxSceneWidth, std::string plugginsLocation);
-	
+
 	/*!
 	 * Tells the ECOMachine that a network message was received and need to be handled.
 	 *

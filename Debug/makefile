@@ -9,14 +9,15 @@ RM := rm -rf
 # All of the sources participating in the build are defined here
 -include sources.mk
 -include subdir.mk
+-include libController/subdir.mk
 -include StoryLine/subdir.mk
+-include EnginesPrivate/subdir.mk
 -include Editor/gecode-solver/subdir.mk
 -include Editor/subdir.mk
 -include Editor/CSP/subdir.mk
 -include ECOMachine/subdir.mk
 -include ECOMachine/Process/subdir.mk
 -include ECOMachine/PetriNet/subdir.mk
--include Controller/subdir.mk
 -include objects.mk
 
 ifneq ($(MAKECMDGOALS),clean)

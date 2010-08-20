@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -55,7 +55,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
 #include "../StoryLine/StoryLine.hpp"
 
 #include <map>
-#include <set> 
+#include <set>
 #include <string>
 
 #include "../Editor/CSP/XMLInclude.hpp"
@@ -111,7 +111,7 @@ public:
 	 * \param processId : the processId to give to this process.
 	 * \param controller : the network controller used by this process to communicate using network.
 	 */
-	void newProcess(std::string type, unsigned int processId, Controller* controller);
+	void newProcess(std::string type, unsigned int processId, DeviceManager* controller);
 
 	/*!
 	 * Gets a ECOProcess.
@@ -147,13 +147,15 @@ public:
 	 */
 	void reset();
 
+	void compileECO(std::map<unsigned int, StoryLine> hierarchyStoryLine,unsigned int timeToStartTriggerPoint);
+
 	/*!
 	 * Compiles the ECOMachine.
 	 *
 	 * \param storyLineToCompile : the storyLine containing all informations for compilation.
 	 * \timeToStartTriggerPoint : time in ms after which the trigger point are handled.
 	 */
-	void compileECO(StoryLine* storyLineToCompile, unsigned int timeToStartTriggerPoint = 0);
+	PetriNet* compilePetriNet(StoryLine storyLineToCompile, std::map<unsigned int, StoryLine> hierarchyStoryLine, std::vector<unsigned int>& processIdToStop, unsigned int timeToStartTriggerPoint = 0, void(*triggerAction)(void*, bool, Transition*) = NULL);
 
 	/*!
 	 * Runs the ECOMachine.
@@ -161,7 +163,7 @@ public:
 	 * \return true if the ECOMachine is now running.
 	 */
 	bool run();
-	
+
 	void pause(bool pauseValue);
 
 	/*!
@@ -170,13 +172,13 @@ public:
 	 * \return true if the ECOMachine is now in a "must stop" state and was previously running.
 	 */
 	bool stop();
-	
+
 	void setGotoInformation(unsigned int gotoInformation);
 	unsigned int getGotoInformation();
-	
+
 	bool setSpeedFactor(float factor);
 	bool changeSpeedFactor(float factor);
-	
+
 	float getSpeedFactor();
 
 	/*!
@@ -192,7 +194,7 @@ public:
 	 * \return true if the ECOMachine is in a "must stop" state.
 	 */
 	bool mustStop();
-	
+
 	bool isPaused();
 
 	/*!
@@ -201,7 +203,7 @@ public:
 	 *
 	 * \param pt2Func : the callback.
 	 */
-	void addCrossAControlPointAction(void(*pt2Func)(unsigned int, unsigned int));
+	void addCrossAControlPointAction(void(*pt2Func)(unsigned int, unsigned int, std::vector<unsigned int>));
 
 	/*!
 	 * Removes the callback called during the execution when a control point is crossed.
@@ -233,7 +235,7 @@ public:
 	 * Removes the callback called when the execution is finished
 	 */
 	void removeIsECOFinishedAction();
-	
+
 	/*!
 	 * Gets the progression of a process (in percent).
 	 *
@@ -255,7 +257,7 @@ public:
 	 * \param root : xmlNode.
 	 * \param controller : the controller used for sending network message.
 	 */
-	void load(xmlNodePtr root, Controller* controller);
+	void load(xmlNodePtr root, DeviceManager* controller);
 
 	/*!
 	 * Gets the PetriNet of this ECO Machine.
@@ -276,12 +278,6 @@ public:
 private:
 	PetriNet* m_petriNet;
 
-	Place* m_startPlace;
-	Place* m_endPlace;
-
-	Transition* m_startTransition;
-	Transition* m_endTransition;
-
 	unsigned int m_lastEventNumber;
 
 	std::map<std::string, std::string> m_fromNetworkMessagesToPetriMessages;
@@ -291,18 +287,16 @@ private:
 	std::map<Transition*, TriggerPointInformations> m_transitionToTriggerPointInformations;
 
 	pthread_t m_thread;
-	
-	bool m_isRunning;
+
 	bool m_isPaused;
-	bool m_mustStop;
-	
+
 	float m_currentSpeedFactor;
 	unsigned int m_gotoValue;
-	
+
 	std::set<Transition*> getOneDepthPredecessorsTransitions(Transition* transition);
 	std::set<Transition*>  computeTransitionsSet(Transition* endTransition, std::map<Transition*, std::set<Transition*> >* transitionsSets);
 
-	void (*m_crossAControlPointAction)(unsigned int, unsigned int);
+	void (*m_crossAControlPointAction)(unsigned int, unsigned int, std::vector<unsigned int>);
 
 	void (*m_waitedTriggerPointMessageAction)(void*, bool, unsigned int, unsigned int, unsigned int, std::string);
 	void* m_waitedTriggerPointMessageArg;
@@ -310,7 +304,7 @@ private:
 	void (*m_isEcoMachineFinished)(void*);
 	void* m_isEcoMachineFinishedArg;
 
-	void cleanECO(Transition* endTransition = NULL);
+	void cleanPetriNet(PetriNet* petriNet, Transition* endTransition);
 
 	bool hasTriggerPointInformations(Transition* transition);
 	TriggerPointInformations getTriggerPointInformations(Transition* transition);

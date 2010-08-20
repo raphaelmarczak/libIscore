@@ -8,7 +8,6 @@ CPP_SRCS += \
 ../Editor/CSP/AntPostRelation.cpp \
 ../Editor/CSP/BinaryRelation.cpp \
 ../Editor/CSP/BinaryTemporalRelation.cpp \
-../Editor/CSP/BoundingRelation.cpp \
 ../Editor/CSP/CSP.cpp \
 ../Editor/CSP/CSPConstrainedVariable.cpp \
 ../Editor/CSP/CSPLinearConstraint.cpp \
@@ -24,7 +23,6 @@ OBJS += \
 ./Editor/CSP/AntPostRelation.o \
 ./Editor/CSP/BinaryRelation.o \
 ./Editor/CSP/BinaryTemporalRelation.o \
-./Editor/CSP/BoundingRelation.o \
 ./Editor/CSP/CSP.o \
 ./Editor/CSP/CSPConstrainedVariable.o \
 ./Editor/CSP/CSPLinearConstraint.o \
@@ -40,7 +38,6 @@ CPP_DEPS += \
 ./Editor/CSP/AntPostRelation.d \
 ./Editor/CSP/BinaryRelation.d \
 ./Editor/CSP/BinaryTemporalRelation.d \
-./Editor/CSP/BoundingRelation.d \
 ./Editor/CSP/CSP.d \
 ./Editor/CSP/CSPConstrainedVariable.d \
 ./Editor/CSP/CSPLinearConstraint.d \

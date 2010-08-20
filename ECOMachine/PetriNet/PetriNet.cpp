@@ -10,16 +10,16 @@ This software is a computer program whose purpose is to propose
 a library for interactive scores edition and execution.
 
 This software is governed by the CeCILL-C license under French law and
-abiding by the rules of distribution of free software.  You can  use, 
+abiding by the rules of distribution of free software.  You can  use,
 modify and/ or redistribute the software under the terms of the CeCILL-C
 license as circulated by CEA, CNRS and INRIA at the following URL
-"http://www.cecill.info". 
+"http://www.cecill.info".
 
 As a counterpart to the access to the source code and  rights to copy,
 modify and redistribute granted by the license, users are provided only
 with a limited warranty  and the software's author,  the holder of the
 economic rights,  and the successive licensors  have only  limited
-liability. 
+liability.
 
 In this respect, the user's attention is drawn to the risks associated
 with loading,  using,  modifying and/or developing or reproducing the
@@ -28,8 +28,8 @@ that may mean  that it is complicated to manipulate,  and  that  also
 therefore means  that it is reserved for developers  and  experienced
 professionals having in-depth computer knowledge. Users are therefore
 encouraged to load and test the software's suitability as regards their
-requirements in conditions enabling the security of their systems and/or 
-data to be ensured and,  more generally, to use and operate it in the 
+requirements in conditions enabling the security of their systems and/or
+data to be ensured and,  more generally, to use and operate it in the
 same conditions as regards security.
 
 The fact that you are presently reading this means that you have had
@@ -58,10 +58,37 @@ PetriNet::PetriNet(unsigned int nbColors)
 : m_currentTime(0), m_nbColors((nbColors > 0)?nbColors:1), m_previousCallOfMakeOneStepInMs(0)
 ,m_mustCrossAllTransitionWithoutWaitingEvent(false)
 {
+	m_parentPetriNet = NULL;
+
 	m_updateFactor = 1;
 	m_waitedTriggerPointMessageAction = NULL;
 	m_waitedTriggerPointMessageArgument = NULL;
+
+	m_mustStop = false;
+	m_isRunning = false;
+
+	m_timeOffset = 0;
+
 	resetEvents();
+}
+
+void* mainThreadFunction(void* threadArg)
+{
+	PetriNet* petriNet = (PetriNet*) threadArg;
+
+	petriNet->m_startPlace->produceTokens(1);
+	petriNet->m_endPlace->consumeTokens(petriNet->m_endPlace->nbOfTokens());
+
+	petriNet->addTime(petriNet->getTimeOffset() * 1000);
+	//petriNet->makeOneStep();
+
+	while (petriNet->m_endPlace->nbOfTokens() == 0 && !petriNet->m_mustStop) {
+		petriNet->update();
+	}
+
+	petriNet->m_isRunning = false;
+
+	return NULL;
 }
 
 long long PetriNet::computeDt() {
@@ -93,7 +120,7 @@ long long PetriNet::computeDt() {
 void PetriNet::update()
 {
 	long long dt = computeDt();
-	
+
 	dt *= m_updateFactor;
 
 	addTime(dt);
@@ -111,8 +138,6 @@ void PetriNet::makeOneStep()
 		} else {
 			PriorityTransitionAction* topAction = getTopActionOnPriorityQueue();
 
-
-
 			if (!topAction->isEnable()) {
 				removeTopActionOnPriorityQueue();
 			} else if ((unsigned int) topAction->getDate().getValue() > getCurrentTimeInMs()) {
@@ -121,16 +146,25 @@ void PetriNet::makeOneStep()
 				Transition* topTransition = topAction->getTransition();
 
 				if (topAction->getType() == START) {
-					turnIntoSensitized(topTransition);
+					if (topTransition->couldBeSensitize()) {
+						turnIntoSensitized(topTransition);
 
-					if (m_waitedTriggerPointMessageAction != NULL) {
-						m_waitedTriggerPointMessageAction(m_waitedTriggerPointMessageArgument, true, topTransition);
+						if (m_waitedTriggerPointMessageAction != NULL) {
+							m_waitedTriggerPointMessageAction(m_waitedTriggerPointMessageArgument, true, topTransition);
+						}
+
+						removeTopActionOnPriorityQueue();
+					} else {
+						topAction->setDate(getCurrentTimeInMs() + 1);
+						removeTopActionOnPriorityQueue();
+						m_priorityTransitionsActionQueue.push(topAction);
 					}
 
-					removeTopActionOnPriorityQueue();
+					//stop = true;
 				} else {
 					if (topTransition->areAllInGoingArcsActive()) {
 						topTransition->crossTransition(true, getCurrentTimeInMs() - topAction->getDate().getValue());
+						removeTopActionOnPriorityQueue();
 					} else {
 						removeTopActionOnPriorityQueue();
 						throw IncoherentStateException();
@@ -192,6 +226,12 @@ void PetriNet::addTime(unsigned int dt)
 	m_currentTime += dt;
 }
 
+void PetriNet::launch()
+{
+	m_isRunning = true;
+	pthread_create(&m_thread, NULL, mainThreadFunction, this);
+}
+
 unsigned int PetriNet::getCurrentTimeInMs()
 {
 	return m_currentTime / 1000;
@@ -236,6 +276,12 @@ void PetriNet::resetEvents()
 void PetriNet::putAnEvent(std::string event)
 {
 	m_incomingEvents.push_back(event);
+
+	for (std::map<PetriNet*, PetriNet*>::iterator it = m_activeChildPetriNet.begin(); it != m_activeChildPetriNet.end(); ++it)
+	{
+		it->second->putAnEvent(event);
+	}
+
 }
 
 bool PetriNet::isAnEvent(std::string event)
@@ -406,6 +452,26 @@ placeList PetriNet::getPlaces()
 	return m_places;
 }
 
+void PetriNet::setStartPlace(Place* place)
+{
+	m_startPlace = place;
+}
+
+Place* PetriNet::getStartPlace()
+{
+	return m_startPlace;
+}
+
+void PetriNet::setEndPlace(Place* place)
+{
+	m_endPlace = place;
+}
+
+Place* PetriNet::getEndPlace()
+{
+	return m_endPlace;
+}
+
 transitionList PetriNet::getTransitions()
 {
 	return m_transitions;
@@ -423,6 +489,16 @@ transitionList PetriNet::getSensitizedTransitions()
 stringList PetriNet::getEvents()
 {
 	return m_incomingEvents.getList();
+}
+
+bool PetriNet::isRunning()
+{
+	return m_isRunning;
+}
+
+void PetriNet::mustStop()
+{
+	m_mustStop = true;
 }
 
 void PetriNet::addActionToPriorityQueue(PriorityTransitionAction* action)
@@ -461,11 +537,27 @@ bool PetriNet::isEmptyPriorityQueue()
 void PetriNet::setUpdateFactor(float updateFactor)
 {
 	m_updateFactor = updateFactor;
+
+	std::map<PetriNet*, PetriNet*>::iterator it;
+
+	for (it = m_activeChildPetriNet.begin(); it != m_activeChildPetriNet.end(); ++it) {
+		it->second->setUpdateFactor(updateFactor);
+	}
 }
 
 float PetriNet::getUpdateFactor()
 {
 	return m_updateFactor;
+}
+
+void PetriNet::setTimeOffset(unsigned int timeOffset)
+{
+	m_timeOffset = timeOffset;
+}
+
+unsigned int PetriNet::getTimeOffset()
+{
+	return m_timeOffset;
 }
 
 void PetriNet::ignoreEventsForOneStep()
@@ -493,6 +585,19 @@ void PetriNet::pushTransitionToCrossWhenAcceleration(Transition* t)
 
 	if (it != m_transitionsToCrossWhenAcceleration.end()) {
 		m_transitionsToCrossWhenAcceleration.push_back(t);
+	}
+}
+
+void PetriNet::addInternPetriNet(Transition* startTransition, Transition* endTransition, PetriNet* petriNet)
+{
+	petriNet->m_parentPetriNet = this;
+	m_childrenPetriNet[petriNet] = petriNet;
+
+	startTransition->addExternAction(&externLaunch, petriNet);
+	endTransition->addExternAction(&externMustStop, petriNet);
+
+	if (m_waitedTriggerPointMessageAction != NULL) {
+		petriNet->addWaitedTriggerPointMessageAction(m_waitedTriggerPointMessageArgument, m_waitedTriggerPointMessageAction);
 	}
 }
 
@@ -535,4 +640,27 @@ PetriNet::~PetriNet()
 //	while (!m_transitions.empty()) {
 //		deleteItem(m_transitions[0]);
 //	}
+}
+
+void externLaunch(void* arg)
+{
+	PetriNet* petriNet = (PetriNet*) arg;
+
+	if (petriNet->m_parentPetriNet != NULL) {
+		petriNet->m_parentPetriNet->m_activeChildPetriNet[petriNet] = petriNet;
+		petriNet->setUpdateFactor(petriNet->m_parentPetriNet->getUpdateFactor());
+	}
+
+	petriNet->launch();
+}
+
+void externMustStop(void* arg)
+{
+	PetriNet* petriNet = (PetriNet*) arg;
+
+	if (petriNet->m_parentPetriNet != NULL) {
+		petriNet->m_parentPetriNet->m_activeChildPetriNet.erase(petriNet);
+	}
+
+	petriNet->mustStop();
 }

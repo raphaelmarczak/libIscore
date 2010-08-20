@@ -4,6 +4,7 @@ Before compiling (using gcc 4.2 or earlier version), you will need to install:
 - libXml2 framework (http://www.explain.com.au/oss/libxml2xslt.html)
 - gecode-3.2.0 framework (http://www.gecode.org)
 - Qt (4.0 or earlier version) (http://qt.nokia.com/products/platform/qt-for-mac)
+- Device-Manager (http://github.com/blueyeti/Device-Manager)
 
 Then type:
 make

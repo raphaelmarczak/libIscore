@@ -4,16 +4,13 @@
 
 # Add inputs and outputs from these tool invocations to the build variables 
 CPP_SRCS += \
-../Engines.cpp \
-../EnginesPrivate.cpp 
+../Engines.cpp 
 
 OBJS += \
-./Engines.o \
-./EnginesPrivate.o 
+./Engines.o 
 
 CPP_DEPS += \
-./Engines.d \
-./EnginesPrivate.d 
+./Engines.d 
 
 
 # Each subdirectory must supply rules for building sources it contributes
