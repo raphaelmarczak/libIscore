@@ -104,9 +104,9 @@ bool NetworkMessageCurves::addCurvesPoints(unsigned int argNb, std::vector<float
 		m_argCurves.resize(argNb + 1);
 	}
 
-	for (unsigned int i = 0; i < percent.size(); ++i) {
+/*	for (unsigned int i = 0; i < percent.size(); ++i) {
 		percent[i] = percent[i] * 100;
-	}
+	}*/
 
 	return m_argCurves[argNb].setSections(percent, y, sectionType, coeff);
 }
@@ -124,9 +124,9 @@ bool NetworkMessageCurves::getCurveSections(unsigned int argNb, std::vector<floa
 
 	m_argCurves[argNb].getSections(xPercents, yValues, sectionType, coeff);
 
-	for (unsigned int i = 0; i < xPercents.size(); ++i) {
+/*	for (unsigned int i = 0; i < xPercents.size(); ++i) {
 		xPercents[i] = xPercents[i] / 100;
-	}
+	}*/
 
 	return true;
 }

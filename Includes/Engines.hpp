@@ -622,7 +622,7 @@ public:
 	 * \param boxId : the Id of the box.
 	 * \param address : curve address.
 	 * \param argNb : arg index.
-	 * \param xPercents
+	 * \param xPercents :[0 < % < 100]
 	 * \param yValues
 	 * \param sectionType : CURVES_POW,...
 	 * \param coeff (for CURVES_POW: 0 to 0.9999 => sqrt, 1 => linear, 1 to infinity => pow).
