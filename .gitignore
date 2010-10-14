@@ -1,0 +1,6 @@
+deprecatedLibController*
+Release/*
+StoryLine*
+Debug*
+*.svn*
+*.mk

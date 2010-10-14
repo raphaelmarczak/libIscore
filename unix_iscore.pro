@@ -3,7 +3,7 @@
 ######################################################################
 
 TEMPLATE = lib
-TARGET = iscore
+TARGET = Iscore
 CONFIG = staticlib
 
 INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/local/include/Iscore
