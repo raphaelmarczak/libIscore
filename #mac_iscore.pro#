@@ -2,17 +2,11 @@ TEMPLATE = lib
 TARGET = Iscore
 CONFIG = staticlib
 
-linux-g++ {
-INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/local/include/Iscore
-QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/usr/lib/libxml2
-LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecodeflatzinc -lgecodekernel -lgecodeminimodel -lgecodescheduling -lgecodeset -lgecodesupport -lgecodegraph
-}
 
-mac-g++ {
-INCLUDEPATH += . ./Includes /Library/Frameworks/ /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2
-QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/System/Library/Frameworks/ -L/Library/Frameworks/
-LIBS += -liscore -lDeviceManager -framework gecode -framework libxml
-}
+
+
+
+
 
 DEPENDPATH += . \
               ECOMachine \
@@ -108,6 +102,7 @@ SOURCES += Engines.cpp \
            ECOMachine/TriggerPointInformations.cpp \
            Editor/Editor.cpp \
            EnginesPrivate/EnginesPrivate.cpp \
+ #          Example/example.cpp \
            StoryLine/StoryLine.cpp \
            ECOMachine/PetriNet/Arc.cpp \
            ECOMachine/PetriNet/ExtendedInt.cpp \
@@ -146,4 +141,3 @@ SOURCES += Engines.cpp \
            Editor/gecode-solver/searchEngine.cpp \
            Editor/gecode-solver/solver.cpp \
            Editor/gecode-solver/solver_wrap.cpp 
-

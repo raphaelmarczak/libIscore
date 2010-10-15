@@ -1,0 +1,1651 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 42;
+	objects = {
+		D7BA7D76DAB5DD13389D6332 = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			generatedFileNames = (
+				);
+			isa = PBXShellScriptBuildPhase;
+			name = "Qt Qmake";
+			neededFileNames = (
+				);
+			shellPath = "/bin/sh";
+			shellScript = "make\ -C\ /Users/luc/Documents/workspace/libIscore\ -f\ \'Iscore.xcodeproj/qt_makeqmake.mak\'";
+		};
+		5822F583A5118F2A77C3487A = {
+			isa = PBXFileReference;
+			name = "Engines.cpp";
+			path = "Engines.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		EA40C329369058E85581C12F = {
+			fileRef = "5822F583A5118F2A77C3487A";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		030EEC2821EC69A7AAF2B5C0 = {
+			isa = PBXFileReference;
+			name = "ChangeTempo.cpp";
+			path = "ECOMachine/ChangeTempo.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		B366BEFA63725EA7887385CC = {
+			fileRef = "030EEC2821EC69A7AAF2B5C0";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		A7043FCB113EE992047C2E7F = {
+			isa = PBXFileReference;
+			name = "ControlPointInformations.cpp";
+			path = "ECOMachine/ControlPointInformations.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		0F21F577742EE6C22AE7B6E1 = {
+			fileRef = "A7043FCB113EE992047C2E7F";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		CCE6070AE1ABAA8E1A573008 = {
+			isa = PBXFileReference;
+			name = "ECOMachine.cpp";
+			path = "ECOMachine/ECOMachine.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		39866FB9AA631ADEAFE0BF36 = {
+			fileRef = "CCE6070AE1ABAA8E1A573008";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		B960712C8293B40F45EF627C = {
+			isa = PBXFileReference;
+			name = "TriggerPointInformations.cpp";
+			path = "ECOMachine/TriggerPointInformations.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		91045F47A4177A9D6E695A15 = {
+			fileRef = "B960712C8293B40F45EF627C";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		0DC9E9DA9C85A9EA76FEAD33 = {
+			isa = PBXFileReference;
+			name = "Editor.cpp";
+			path = "Editor/Editor.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		4E89DA950C0F706AFA376912 = {
+			fileRef = "0DC9E9DA9C85A9EA76FEAD33";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		79158E59B11DA3203016CF96 = {
+			isa = PBXFileReference;
+			name = "EnginesPrivate.cpp";
+			path = "EnginesPrivate/EnginesPrivate.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		2E55B28457DE253D128A3CF3 = {
+			fileRef = "79158E59B11DA3203016CF96";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		0B1C85801F028D09321E916D = {
+			isa = PBXFileReference;
+			name = "StoryLine.cpp";
+			path = "StoryLine/StoryLine.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		BCD2F89EE0F31A4E90551C09 = {
+			fileRef = "0B1C85801F028D09321E916D";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		2FE5FD329E121D63ACC75E05 = {
+			isa = PBXFileReference;
+			name = "Arc.cpp";
+			path = "ECOMachine/PetriNet/Arc.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		AE79E70BB9727EFFCE9C8928 = {
+			fileRef = "2FE5FD329E121D63ACC75E05";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		566C89659981121A9DBCC911 = {
+			isa = PBXFileReference;
+			name = "ExtendedInt.cpp";
+			path = "ECOMachine/PetriNet/ExtendedInt.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		9A89C83A19E3B2C3D905F93E = {
+			fileRef = "566C89659981121A9DBCC911";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		8F0390155A7170F6E9124954 = {
+			isa = PBXFileReference;
+			name = "PetriNet.cpp";
+			path = "ECOMachine/PetriNet/PetriNet.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		04B4D0009C603733DBD20CD5 = {
+			fileRef = "8F0390155A7170F6E9124954";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		BE39914687C82F5E71E231D5 = {
+			isa = PBXFileReference;
+			name = "PetriNetItem.cpp";
+			path = "ECOMachine/PetriNet/PetriNetItem.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		69F80FFDD30D981BEDB57A98 = {
+			fileRef = "BE39914687C82F5E71E231D5";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		13571FB8971444D34DBA57BD = {
+			isa = PBXFileReference;
+			name = "PetriNetNode.cpp";
+			path = "ECOMachine/PetriNet/PetriNetNode.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		A9A3990E1947089A667EC596 = {
+			fileRef = "13571FB8971444D34DBA57BD";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		15EB129AEB7644497A7E5057 = {
+			isa = PBXFileReference;
+			name = "Place.cpp";
+			path = "ECOMachine/PetriNet/Place.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		16F8C08E120B1964D6D1B705 = {
+			fileRef = "15EB129AEB7644497A7E5057";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		96B3C4FD52D4A10298781B90 = {
+			isa = PBXFileReference;
+			name = "PriorityTransitionAction.cpp";
+			path = "ECOMachine/PetriNet/PriorityTransitionAction.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		8176544B3A6BD207AD1C146D = {
+			fileRef = "96B3C4FD52D4A10298781B90";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		36A6F813CB3786B4AA2A251A = {
+			isa = PBXFileReference;
+			name = "ThreadSafeList.cpp";
+			path = "ECOMachine/PetriNet/ThreadSafeList.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		C0CCD7F4CB6659C16DF1DDA1 = {
+			fileRef = "36A6F813CB3786B4AA2A251A";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		ECDBE0D71E458E59264B1954 = {
+			isa = PBXFileReference;
+			name = "Token.cpp";
+			path = "ECOMachine/PetriNet/Token.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		2DC21713446AC2761552C554 = {
+			fileRef = "ECDBE0D71E458E59264B1954";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		0F4950673A68441DF364C862 = {
+			isa = PBXFileReference;
+			name = "Transition.cpp";
+			path = "ECOMachine/PetriNet/Transition.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		339D5515BEEEBAF86CB84077 = {
+			fileRef = "0F4950673A68441DF364C862";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		811797AA6EF1137C5790C696 = {
+			isa = PBXFileReference;
+			name = "TransitionAction.cpp";
+			path = "ECOMachine/PetriNet/TransitionAction.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		C2E48463D06C7A07803C1E2D = {
+			fileRef = "811797AA6EF1137C5790C696";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		B71099070F80EC0FE5B2040C = {
+			isa = PBXFileReference;
+			name = "TransitionBitArray.cpp";
+			path = "ECOMachine/PetriNet/TransitionBitArray.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		3410ACE8D96366F595E630DC = {
+			fileRef = "B71099070F80EC0FE5B2040C";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		0C416FFB729B63CDA6ACA938 = {
+			isa = PBXFileReference;
+			name = "MultiTypeCurve.cpp";
+			path = "ECOMachine/Process/MultiTypeCurve.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		BF6D8D580CE1D91A3D695EF5 = {
+			fileRef = "0C416FFB729B63CDA6ACA938";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		B1F32D91B0D9DB5B53F9ABE5 = {
+			isa = PBXFileReference;
+			name = "NetworkMessageCurves.cpp";
+			path = "ECOMachine/Process/NetworkMessageCurves.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		0700118F9F9641A491B41069 = {
+			fileRef = "B1F32D91B0D9DB5B53F9ABE5";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		90F8928F20EA1EEB44F7A08C = {
+			isa = PBXFileReference;
+			name = "Process.cpp";
+			path = "ECOMachine/Process/Process.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		CE1DFA02540F644F0572CF5B = {
+			fileRef = "90F8928F20EA1EEB44F7A08C";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		164ABACC0DB358397FC753B1 = {
+			isa = PBXFileReference;
+			name = "SendNetworkMessageProcess.cpp";
+			path = "ECOMachine/Process/SendNetworkMessageProcess.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		A93FE906ED2C9E56946629CC = {
+			fileRef = "164ABACC0DB358397FC753B1";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		894111C0DB7E6C62338317D6 = {
+			isa = PBXFileReference;
+			name = "StringParser.cpp";
+			path = "ECOMachine/Process/StringParser.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		C7717D979A4DDAB20FCAA6C4 = {
+			fileRef = "894111C0DB7E6C62338317D6";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		EAF0A515BC90A8576F1A4D43 = {
+			isa = PBXFileReference;
+			name = "StringTypeFunctions.cpp";
+			path = "ECOMachine/Process/StringTypeFunctions.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		598CA562F05169728FD52EA2 = {
+			fileRef = "EAF0A515BC90A8576F1A4D43";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		80C2DA5F27AA1041AECF1CD1 = {
+			isa = PBXFileReference;
+			name = "AllenRelation.cpp";
+			path = "Editor/CSP/AllenRelation.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		58FD4FCAD8120EB932D75BAC = {
+			fileRef = "80C2DA5F27AA1041AECF1CD1";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		2E254D6F588D7F630527F16D = {
+			isa = PBXFileReference;
+			name = "AntPostRelation.cpp";
+			path = "Editor/CSP/AntPostRelation.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		FC7DDC024EB7F5AA866CB7AA = {
+			fileRef = "2E254D6F588D7F630527F16D";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		2638426EF9223B28C4C0D033 = {
+			isa = PBXFileReference;
+			name = "BinaryRelation.cpp";
+			path = "Editor/CSP/BinaryRelation.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		EB202670442991442BA36808 = {
+			fileRef = "2638426EF9223B28C4C0D033";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		5D46D41D8D1F0398021940EC = {
+			isa = PBXFileReference;
+			name = "BinaryTemporalRelation.cpp";
+			path = "Editor/CSP/BinaryTemporalRelation.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		1BF6FE3CB023D150F2C8CFA9 = {
+			fileRef = "5D46D41D8D1F0398021940EC";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		AA774A381B82DCF18E34BB51 = {
+			isa = PBXFileReference;
+			name = "ConstrainedBox.cpp";
+			path = "Editor/CSP/ConstrainedBox.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		FF705539CC6838C3C8A53768 = {
+			fileRef = "AA774A381B82DCF18E34BB51";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		DC7F41C8DCC92054C30DFD24 = {
+			isa = PBXFileReference;
+			name = "ConstrainedTemporalEntity.cpp";
+			path = "Editor/CSP/ConstrainedTemporalEntity.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		BAF3599790DB16A421CAEA80 = {
+			fileRef = "DC7F41C8DCC92054C30DFD24";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		CC9D34C4594DE3141C237E3F = {
+			isa = PBXFileReference;
+			name = "ControlPoint.cpp";
+			path = "Editor/CSP/ControlPoint.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		86B57BF3372E17E75E6550EB = {
+			fileRef = "CC9D34C4594DE3141C237E3F";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		C658F66F20CE157B84B1A84C = {
+			isa = PBXFileReference;
+			name = "CSP.cpp";
+			path = "Editor/CSP/CSP.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		8EE9312215F1F52262F6F156 = {
+			fileRef = "C658F66F20CE157B84B1A84C";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		EFB51CE724DABA96A887B723 = {
+			isa = PBXFileReference;
+			name = "CSPConstrainedVariable.cpp";
+			path = "Editor/CSP/CSPConstrainedVariable.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		F5EB4B62DE26E9F2F6536CD0 = {
+			fileRef = "EFB51CE724DABA96A887B723";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		7451DEF3F5ED1D5A660805E9 = {
+			isa = PBXFileReference;
+			name = "CSPLinearConstraint.cpp";
+			path = "Editor/CSP/CSPLinearConstraint.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		A0E3D5BA4A54157FC1986B88 = {
+			fileRef = "7451DEF3F5ED1D5A660805E9";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		265375F4ED1C38613854276E = {
+			isa = PBXFileReference;
+			name = "IntervalRelation.cpp";
+			path = "Editor/CSP/IntervalRelation.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		AF4BE7986DB1AC0FA2F141E3 = {
+			fileRef = "265375F4ED1C38613854276E";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		37BEBAE95B214A002F5ACDCC = {
+			isa = PBXFileReference;
+			name = "TriggerPoint.cpp";
+			path = "Editor/CSP/TriggerPoint.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		8854633177E934856B83F549 = {
+			fileRef = "37BEBAE95B214A002F5ACDCC";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		8C34B8F160738A1DA64B6C09 = {
+			isa = PBXFileReference;
+			name = "XMLConversion.cpp";
+			path = "Editor/CSP/XMLConversion.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		395DDD6F19604EA8156FC698 = {
+			fileRef = "8C34B8F160738A1DA64B6C09";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		B2921592A307DE616BE2A3A6 = {
+			isa = PBXFileReference;
+			name = "customSpace.cpp";
+			path = "Editor/gecode-solver/customSpace.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		51704014251758CF590FD1D4 = {
+			fileRef = "B2921592A307DE616BE2A3A6";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		B8E08D7625B0E850E1E5B932 = {
+			isa = PBXFileReference;
+			name = "integerVariable.cpp";
+			path = "Editor/gecode-solver/integerVariable.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		EF8765C093A51ECF2E5584E4 = {
+			fileRef = "B8E08D7625B0E850E1E5B932";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		4602CDDF62A3B364FB7FC673 = {
+			isa = PBXFileReference;
+			name = "linearConstraint.cpp";
+			path = "Editor/gecode-solver/linearConstraint.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		B21540AA38BCF7CDD0E5520C = {
+			fileRef = "4602CDDF62A3B364FB7FC673";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		8D13789FE66C89DA57D3ED1B = {
+			isa = PBXFileReference;
+			name = "searchEngine.cpp";
+			path = "Editor/gecode-solver/searchEngine.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		AA5919C354B36192D478F03A = {
+			fileRef = "8D13789FE66C89DA57D3ED1B";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		E3C39C13FE363A03D5274684 = {
+			isa = PBXFileReference;
+			name = "solver.cpp";
+			path = "Editor/gecode-solver/solver.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		1FBD95256B8946F022FA807D = {
+			fileRef = "E3C39C13FE363A03D5274684";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		72CE91495573616FC91870A0 = {
+			isa = PBXFileReference;
+			name = "solver_wrap.cpp";
+			path = "Editor/gecode-solver/solver_wrap.cpp";
+			refType = 4;
+			lastKnownFileType = "sourcecode.cpp.cpp";
+		};
+		F487669F1E29D969A8A9BBA0 = {
+			fileRef = "72CE91495573616FC91870A0";
+			isa = PBXBuildFile;
+			settings = {
+				ATTRIBUTES = (
+					);
+			};
+		};
+		852832575AD7E322199860D5 = {
+			isa = PBXFileReference;
+			name = "ChangeTempo.hpp";
+			path = "ECOMachine/ChangeTempo.hpp";
+			refType = 4;
+		};
+		7A38011FEA35B5DC57232C32 = {
+			isa = PBXFileReference;
+			name = "ControlPointInformations.hpp";
+			path = "ECOMachine/ControlPointInformations.hpp";
+			refType = 4;
+		};
+		73E4DD16A331169A9A1D8312 = {
+			isa = PBXFileReference;
+			name = "ECOMachine.hpp";
+			path = "ECOMachine/ECOMachine.hpp";
+			refType = 4;
+		};
+		9AC397BC989B9A2C059DF011 = {
+			isa = PBXFileReference;
+			name = "TriggerPointInformations.hpp";
+			path = "ECOMachine/TriggerPointInformations.hpp";
+			refType = 4;
+		};
+		EBC140072586F62CA8139E06 = {
+			isa = PBXFileReference;
+			name = "Editor.hpp";
+			path = "Editor/Editor.hpp";
+			refType = 4;
+		};
+		95C824FE270D1E287A90198B = {
+			isa = PBXFileReference;
+			name = "EnginesPrivate.hpp";
+			path = "EnginesPrivate/EnginesPrivate.hpp";
+			refType = 4;
+		};
+		5959F119B7F4276D6BCAD36F = {
+			isa = PBXFileReference;
+			name = "CSPTypes.hpp";
+			path = "Includes/CSPTypes.hpp";
+			refType = 4;
+		};
+		93A9BDF2E1057548CA0537F3 = {
+			isa = PBXFileReference;
+			name = "Engines.hpp";
+			path = "Includes/Engines.hpp";
+			refType = 4;
+		};
+		F00F902472064A552213FE2D = {
+			isa = PBXFileReference;
+			name = "Controller.h";
+			path = "libController/Controller.h";
+			refType = 4;
+		};
+		EA7383F9CD92AC018DE1BD49 = {
+			isa = PBXFileReference;
+			name = "Device.h";
+			path = "libController/Device.h";
+			refType = 4;
+		};
+		AF5F3DAA2B445E9FE0F42BD7 = {
+			isa = PBXFileReference;
+			name = "Plugin.h";
+			path = "libController/Plugin.h";
+			refType = 4;
+		};
+		12FCC69AED00261E22C13E0A = {
+			isa = PBXFileReference;
+			name = "PluginFactories.h";
+			path = "libController/PluginFactories.h";
+			refType = 4;
+		};
+		DC6147E052C4261A06F10633 = {
+			isa = PBXFileReference;
+			name = "StoryLine.hpp";
+			path = "StoryLine/StoryLine.hpp";
+			refType = 4;
+		};
+		836F5C0D25D1BCCDB89CC026 = {
+			isa = PBXFileReference;
+			name = "Arc.hpp";
+			path = "ECOMachine/PetriNet/Arc.hpp";
+			refType = 4;
+		};
+		2C4AAC7793A2508268F5F819 = {
+			isa = PBXFileReference;
+			name = "ArithmeticException.hpp";
+			path = "ECOMachine/PetriNet/ArithmeticException.hpp";
+			refType = 4;
+		};
+		F0B5B5BB947D92CA6B67BB5D = {
+			isa = PBXFileReference;
+			name = "ExtendedInt.hpp";
+			path = "ECOMachine/PetriNet/ExtendedInt.hpp";
+			refType = 4;
+		};
+		E3CFBF19010C960F40B423BD = {
+			isa = PBXFileReference;
+			name = "IllegalArgumentException.hpp";
+			path = "ECOMachine/PetriNet/IllegalArgumentException.hpp";
+			refType = 4;
+		};
+		065F55D90238712A4E6EB733 = {
+			isa = PBXFileReference;
+			name = "IncoherentStateException.hpp";
+			path = "ECOMachine/PetriNet/IncoherentStateException.hpp";
+			refType = 4;
+		};
+		5FF303EC0E964D5727CDDF83 = {
+			isa = PBXFileReference;
+			name = "OutOfBoundException.hpp";
+			path = "ECOMachine/PetriNet/OutOfBoundException.hpp";
+			refType = 4;
+		};
+		0CCB642C7D8183760C7E5755 = {
+			isa = PBXFileReference;
+			name = "PetriNet.hpp";
+			path = "ECOMachine/PetriNet/PetriNet.hpp";
+			refType = 4;
+		};
+		7B476CD9780BCE13EB059BEB = {
+			isa = PBXFileReference;
+			name = "PetriNetItem.hpp";
+			path = "ECOMachine/PetriNet/PetriNetItem.hpp";
+			refType = 4;
+		};
+		58CBFB4DF3E6DD18AE07F5BE = {
+			isa = PBXFileReference;
+			name = "PetriNetNode.hpp";
+			path = "ECOMachine/PetriNet/PetriNetNode.hpp";
+			refType = 4;
+		};
+		DB161C8C2EF96C80E7C216A8 = {
+			isa = PBXFileReference;
+			name = "Place.hpp";
+			path = "ECOMachine/PetriNet/Place.hpp";
+			refType = 4;
+		};
+		6EF74E0E8E169246803806A7 = {
+			isa = PBXFileReference;
+			name = "PriorityTransitionAction.hpp";
+			path = "ECOMachine/PetriNet/PriorityTransitionAction.hpp";
+			refType = 4;
+		};
+		C7B8EF3415C26EC9FC9337E8 = {
+			isa = PBXFileReference;
+			name = "ThreadSafeList.hpp";
+			path = "ECOMachine/PetriNet/ThreadSafeList.hpp";
+			refType = 4;
+		};
+		15F41C9F4485471DE620436E = {
+			isa = PBXFileReference;
+			name = "Token.hpp";
+			path = "ECOMachine/PetriNet/Token.hpp";
+			refType = 4;
+		};
+		777ED68A70BA1947EC395572 = {
+			isa = PBXFileReference;
+			name = "Transition.hpp";
+			path = "ECOMachine/PetriNet/Transition.hpp";
+			refType = 4;
+		};
+		1771349EBEE2F246248082B7 = {
+			isa = PBXFileReference;
+			name = "TransitionAction.hpp";
+			path = "ECOMachine/PetriNet/TransitionAction.hpp";
+			refType = 4;
+		};
+		9FE006D0CDE04498AD80F284 = {
+			isa = PBXFileReference;
+			name = "TransitionBitArray.hpp";
+			path = "ECOMachine/PetriNet/TransitionBitArray.hpp";
+			refType = 4;
+		};
+		9B715CE12CC009EFF9AF199B = {
+			isa = PBXFileReference;
+			name = "MultiTypeCurve.hpp";
+			path = "ECOMachine/Process/MultiTypeCurve.hpp";
+			refType = 4;
+		};
+		3AF8BD67D9DC1C288C0D6C5E = {
+			isa = PBXFileReference;
+			name = "NetworkMessageCurves.hpp";
+			path = "ECOMachine/Process/NetworkMessageCurves.hpp";
+			refType = 4;
+		};
+		DC69CD088C60D825E625ABA2 = {
+			isa = PBXFileReference;
+			name = "Process.hpp";
+			path = "ECOMachine/Process/Process.hpp";
+			refType = 4;
+		};
+		87E3A370D6984D5E6B91C220 = {
+			isa = PBXFileReference;
+			name = "ProcessInclude.hpp";
+			path = "ECOMachine/Process/ProcessInclude.hpp";
+			refType = 4;
+		};
+		4AC5687789437D9E8E64611C = {
+			isa = PBXFileReference;
+			name = "ProcessStep.hpp";
+			path = "ECOMachine/Process/ProcessStep.hpp";
+			refType = 4;
+		};
+		F1527E0C75D4217D6E3D1A4C = {
+			isa = PBXFileReference;
+			name = "SendNetworkMessageProcess.hpp";
+			path = "ECOMachine/Process/SendNetworkMessageProcess.hpp";
+			refType = 4;
+		};
+		71FEB72E0CDFADB4D5A6101F = {
+			isa = PBXFileReference;
+			name = "StringParser.hpp";
+			path = "ECOMachine/Process/StringParser.hpp";
+			refType = 4;
+		};
+		5C7C97586D7FFB8BB43E192B = {
+			isa = PBXFileReference;
+			name = "StringTypeFunctions.hpp";
+			path = "ECOMachine/Process/StringTypeFunctions.hpp";
+			refType = 4;
+		};
+		6DB960FED0D56B1CEC075EEC = {
+			isa = PBXFileReference;
+			name = "AllenRelation.hpp";
+			path = "Editor/CSP/AllenRelation.hpp";
+			refType = 4;
+		};
+		96433E10424E80062FC59648 = {
+			isa = PBXFileReference;
+			name = "AntPostRelation.hpp";
+			path = "Editor/CSP/AntPostRelation.hpp";
+			refType = 4;
+		};
+		560E9B440FE55AA45A3389C6 = {
+			isa = PBXFileReference;
+			name = "BinaryRelation.hpp";
+			path = "Editor/CSP/BinaryRelation.hpp";
+			refType = 4;
+		};
+		7CC9271F45AF58A0E258BB64 = {
+			isa = PBXFileReference;
+			name = "BinaryTemporalRelation.hpp";
+			path = "Editor/CSP/BinaryTemporalRelation.hpp";
+			refType = 4;
+		};
+		BBDC80550FA2A45FEF0A0FFA = {
+			isa = PBXFileReference;
+			name = "ConstrainedBox.hpp";
+			path = "Editor/CSP/ConstrainedBox.hpp";
+			refType = 4;
+		};
+		083D6C12955EC78AE2FF9B17 = {
+			isa = PBXFileReference;
+			name = "ConstrainedTemporalEntity.hpp";
+			path = "Editor/CSP/ConstrainedTemporalEntity.hpp";
+			refType = 4;
+		};
+		7A5C026F9465831C860AC549 = {
+			isa = PBXFileReference;
+			name = "ControlPoint.hpp";
+			path = "Editor/CSP/ControlPoint.hpp";
+			refType = 4;
+		};
+		AA56C5BC6D05C5A2A7A948FB = {
+			isa = PBXFileReference;
+			name = "CSP.hpp";
+			path = "Editor/CSP/CSP.hpp";
+			refType = 4;
+		};
+		DA92D940BFF5FB228A4E0AE8 = {
+			isa = PBXFileReference;
+			name = "CSPConstrainedVariable.hpp";
+			path = "Editor/CSP/CSPConstrainedVariable.hpp";
+			refType = 4;
+		};
+		D434561384FDAE55F5EC64BC = {
+			isa = PBXFileReference;
+			name = "CSPLinearConstraint.hpp";
+			path = "Editor/CSP/CSPLinearConstraint.hpp";
+			refType = 4;
+		};
+		046AD26BF980214AC2CA495C = {
+			isa = PBXFileReference;
+			name = "IllegalArgumentException.hpp";
+			path = "Editor/CSP/IllegalArgumentException.hpp";
+			refType = 4;
+		};
+		E8E6F7891CB7F242B8332CB0 = {
+			isa = PBXFileReference;
+			name = "IntervalRelation.hpp";
+			path = "Editor/CSP/IntervalRelation.hpp";
+			refType = 4;
+		};
+		31E075B597E0AAFFF6A8DCBE = {
+			isa = PBXFileReference;
+			name = "InvalidFileFormatException.hpp";
+			path = "Editor/CSP/InvalidFileFormatException.hpp";
+			refType = 4;
+		};
+		773B50BE9A32E2AE73248816 = {
+			isa = PBXFileReference;
+			name = "OutOfBoundException.hpp";
+			path = "Editor/CSP/OutOfBoundException.hpp";
+			refType = 4;
+		};
+		C085D73B0C666D571050953A = {
+			isa = PBXFileReference;
+			name = "TriggerPoint.hpp";
+			path = "Editor/CSP/TriggerPoint.hpp";
+			refType = 4;
+		};
+		7387201C44C2E73A2FC33A3D = {
+			isa = PBXFileReference;
+			name = "XMLConversion.hpp";
+			path = "Editor/CSP/XMLConversion.hpp";
+			refType = 4;
+		};
+		C4FF313D1029F0DEDCAE3BA1 = {
+			isa = PBXFileReference;
+			name = "XMLInclude.hpp";
+			path = "Editor/CSP/XMLInclude.hpp";
+			refType = 4;
+		};
+		5BCD99FD4641B636C96D5AA9 = {
+			isa = PBXFileReference;
+			name = "customSpace.hpp";
+			path = "Editor/gecode-solver/customSpace.hpp";
+			refType = 4;
+		};
+		3C7923C6ADC9F7020F246980 = {
+			isa = PBXFileReference;
+			name = "gecode_headers.hpp";
+			path = "Editor/gecode-solver/gecode_headers.hpp";
+			refType = 4;
+		};
+		AF69AC5CB6805DD17ABBBB09 = {
+			isa = PBXFileReference;
+			name = "integerVariable.hpp";
+			path = "Editor/gecode-solver/integerVariable.hpp";
+			refType = 4;
+		};
+		9D41853A5BE61A236941616B = {
+			isa = PBXFileReference;
+			name = "linearConstraint.hpp";
+			path = "Editor/gecode-solver/linearConstraint.hpp";
+			refType = 4;
+		};
+		7BAB775B8ACEE55EA23F6D09 = {
+			isa = PBXFileReference;
+			name = "relations_type.hpp";
+			path = "Editor/gecode-solver/relations_type.hpp";
+			refType = 4;
+		};
+		B6A3F4FFFB2C66D960653ABD = {
+			isa = PBXFileReference;
+			name = "searchEngine.hpp";
+			path = "Editor/gecode-solver/searchEngine.hpp";
+			refType = 4;
+		};
+		D84C555CEC7D819A7A298C36 = {
+			isa = PBXFileReference;
+			name = "solver.hpp";
+			path = "Editor/gecode-solver/solver.hpp";
+			refType = 4;
+		};
+		79DCD332278EB4ABF32126B5 = {
+			isa = PBXFileReference;
+			name = "solver_wrap.hpp";
+			path = "Editor/gecode-solver/solver_wrap.hpp";
+			refType = 4;
+		};
+		9B75A076560A1D37CB1B5990 = {
+			isa = PBXFileReference;
+			name = "unix_iscore.pro";
+			path = "unix_iscore.pro";
+			refType = 4;
+		};
+		883D7615C4D2DE3FA1218F12 = {
+			isa = PBXGroup;
+			children = (
+				"F638D7BB8373037545403780",
+				"F1B69B3A2E8DC8BA25F738E9",
+				"34304D603DA0CF1D100D815A",
+				"2C7C0FF7ECFB59AC13B8FCB2",
+				"FB537E4B2007E9458E6F2B0A",
+				"C5369487670072A59ADC9926");
+			name = "Headers";
+			refType = 4;
+		};
+		F638D7BB8373037545403780 = {
+			isa = PBXGroup;
+			children = (
+				"852832575AD7E322199860D5",
+				"7A38011FEA35B5DC57232C32",
+				"73E4DD16A331169A9A1D8312",
+				"9AC397BC989B9A2C059DF011",
+				"9BA0697C5502F5C62A308C0A",
+				"41845910578FF6A59A2F74ED");
+			name = "ECOMachine";
+			refType = 4;
+		};
+		9BA0697C5502F5C62A308C0A = {
+			isa = PBXGroup;
+			children = (
+				"836F5C0D25D1BCCDB89CC026",
+				"2C4AAC7793A2508268F5F819",
+				"F0B5B5BB947D92CA6B67BB5D",
+				"E3CFBF19010C960F40B423BD",
+				"065F55D90238712A4E6EB733",
+				"5FF303EC0E964D5727CDDF83",
+				"0CCB642C7D8183760C7E5755",
+				"7B476CD9780BCE13EB059BEB",
+				"58CBFB4DF3E6DD18AE07F5BE",
+				"DB161C8C2EF96C80E7C216A8",
+				"6EF74E0E8E169246803806A7",
+				"C7B8EF3415C26EC9FC9337E8",
+				"15F41C9F4485471DE620436E",
+				"777ED68A70BA1947EC395572",
+				"1771349EBEE2F246248082B7",
+				"9FE006D0CDE04498AD80F284");
+			name = "PetriNet";
+			refType = 4;
+		};
+		41845910578FF6A59A2F74ED = {
+			isa = PBXGroup;
+			children = (
+				"9B715CE12CC009EFF9AF199B",
+				"3AF8BD67D9DC1C288C0D6C5E",
+				"DC69CD088C60D825E625ABA2",
+				"87E3A370D6984D5E6B91C220",
+				"4AC5687789437D9E8E64611C",
+				"F1527E0C75D4217D6E3D1A4C",
+				"71FEB72E0CDFADB4D5A6101F",
+				"5C7C97586D7FFB8BB43E192B");
+			name = "Process";
+			refType = 4;
+		};
+		F1B69B3A2E8DC8BA25F738E9 = {
+			isa = PBXGroup;
+			children = (
+				"EBC140072586F62CA8139E06",
+				"F842125ACDB18083C98F24FD",
+				"448E13208B6227E6E401135D");
+			name = "Editor";
+			refType = 4;
+		};
+		F842125ACDB18083C98F24FD = {
+			isa = PBXGroup;
+			children = (
+				"6DB960FED0D56B1CEC075EEC",
+				"96433E10424E80062FC59648",
+				"560E9B440FE55AA45A3389C6",
+				"7CC9271F45AF58A0E258BB64",
+				"BBDC80550FA2A45FEF0A0FFA",
+				"083D6C12955EC78AE2FF9B17",
+				"7A5C026F9465831C860AC549",
+				"AA56C5BC6D05C5A2A7A948FB",
+				"DA92D940BFF5FB228A4E0AE8",
+				"D434561384FDAE55F5EC64BC",
+				"046AD26BF980214AC2CA495C",
+				"E8E6F7891CB7F242B8332CB0",
+				"31E075B597E0AAFFF6A8DCBE",
+				"773B50BE9A32E2AE73248816",
+				"C085D73B0C666D571050953A",
+				"7387201C44C2E73A2FC33A3D",
+				"C4FF313D1029F0DEDCAE3BA1");
+			name = "CSP";
+			refType = 4;
+		};
+		448E13208B6227E6E401135D = {
+			isa = PBXGroup;
+			children = (
+				"5BCD99FD4641B636C96D5AA9",
+				"3C7923C6ADC9F7020F246980",
+				"AF69AC5CB6805DD17ABBBB09",
+				"9D41853A5BE61A236941616B",
+				"7BAB775B8ACEE55EA23F6D09",
+				"B6A3F4FFFB2C66D960653ABD",
+				"D84C555CEC7D819A7A298C36",
+				"79DCD332278EB4ABF32126B5");
+			name = "gecode-solver";
+			refType = 4;
+		};
+		34304D603DA0CF1D100D815A = {
+			isa = PBXGroup;
+			children = (
+				"95C824FE270D1E287A90198B");
+			name = "EnginesPrivate";
+			refType = 4;
+		};
+		2C7C0FF7ECFB59AC13B8FCB2 = {
+			isa = PBXGroup;
+			children = (
+				"5959F119B7F4276D6BCAD36F",
+				"93A9BDF2E1057548CA0537F3");
+			name = "Includes";
+			refType = 4;
+		};
+		C5369487670072A59ADC9926 = {
+			isa = PBXGroup;
+			children = (
+				"DC6147E052C4261A06F10633");
+			name = "StoryLine";
+			refType = 4;
+		};
+		FB537E4B2007E9458E6F2B0A = {
+			isa = PBXGroup;
+			children = (
+				"F00F902472064A552213FE2D",
+				"EA7383F9CD92AC018DE1BD49",
+				"AF5F3DAA2B445E9FE0F42BD7",
+				"12FCC69AED00261E22C13E0A");
+			name = "libController";
+			refType = 4;
+		};
+		0541AF5966981F6DE932DE6F = {
+			isa = PBXGroup;
+			children = (
+				"030EEC2821EC69A7AAF2B5C0",
+				"A7043FCB113EE992047C2E7F",
+				"CCE6070AE1ABAA8E1A573008",
+				"B960712C8293B40F45EF627C",
+				"D1A73F76DE1A59D36930B8E7",
+				"167B765CA9DAD20AA7E109CD");
+			name = "ECOMachine";
+			refType = 4;
+		};
+		D1A73F76DE1A59D36930B8E7 = {
+			isa = PBXGroup;
+			children = (
+				"2FE5FD329E121D63ACC75E05",
+				"566C89659981121A9DBCC911",
+				"8F0390155A7170F6E9124954",
+				"BE39914687C82F5E71E231D5",
+				"13571FB8971444D34DBA57BD",
+				"15EB129AEB7644497A7E5057",
+				"96B3C4FD52D4A10298781B90",
+				"36A6F813CB3786B4AA2A251A",
+				"ECDBE0D71E458E59264B1954",
+				"0F4950673A68441DF364C862",
+				"811797AA6EF1137C5790C696",
+				"B71099070F80EC0FE5B2040C");
+			name = "PetriNet";
+			refType = 4;
+		};
+		167B765CA9DAD20AA7E109CD = {
+			isa = PBXGroup;
+			children = (
+				"0C416FFB729B63CDA6ACA938",
+				"B1F32D91B0D9DB5B53F9ABE5",
+				"90F8928F20EA1EEB44F7A08C",
+				"164ABACC0DB358397FC753B1",
+				"894111C0DB7E6C62338317D6",
+				"EAF0A515BC90A8576F1A4D43");
+			name = "Process";
+			refType = 4;
+		};
+		D4B35ED8D7FB7A9D98FB3706 = {
+			isa = PBXGroup;
+			children = (
+				"0DC9E9DA9C85A9EA76FEAD33",
+				"9878DD94DDD95BAD16DF6487",
+				"00697D79F48A08A51A7C3F80");
+			name = "Editor";
+			refType = 4;
+		};
+		9878DD94DDD95BAD16DF6487 = {
+			isa = PBXGroup;
+			children = (
+				"80C2DA5F27AA1041AECF1CD1",
+				"2E254D6F588D7F630527F16D",
+				"2638426EF9223B28C4C0D033",
+				"5D46D41D8D1F0398021940EC",
+				"AA774A381B82DCF18E34BB51",
+				"DC7F41C8DCC92054C30DFD24",
+				"CC9D34C4594DE3141C237E3F",
+				"C658F66F20CE157B84B1A84C",
+				"EFB51CE724DABA96A887B723",
+				"7451DEF3F5ED1D5A660805E9",
+				"265375F4ED1C38613854276E",
+				"37BEBAE95B214A002F5ACDCC",
+				"8C34B8F160738A1DA64B6C09");
+			name = "CSP";
+			refType = 4;
+		};
+		00697D79F48A08A51A7C3F80 = {
+			isa = PBXGroup;
+			children = (
+				"B2921592A307DE616BE2A3A6",
+				"B8E08D7625B0E850E1E5B932",
+				"4602CDDF62A3B364FB7FC673",
+				"8D13789FE66C89DA57D3ED1B",
+				"E3C39C13FE363A03D5274684",
+				"72CE91495573616FC91870A0");
+			name = "gecode-solver";
+			refType = 4;
+		};
+		F94CFC4D1369AC7D1041AA56 = {
+			isa = PBXGroup;
+			children = (
+				"79158E59B11DA3203016CF96");
+			name = "EnginesPrivate";
+			refType = 4;
+		};
+		FB332F5348D999487D072B05 = {
+			isa = PBXGroup;
+			children = (
+				"0B1C85801F028D09321E916D");
+			name = "StoryLine";
+			refType = 4;
+		};
+		FB61758D0F0FDA4BA867C3D5 = {
+			isa = PBXGroup;
+			children = (
+				"5822F583A5118F2A77C3487A",
+				"0541AF5966981F6DE932DE6F",
+				"D4B35ED8D7FB7A9D98FB3706",
+				"F94CFC4D1369AC7D1041AA56",
+				"FB332F5348D999487D072B05");
+			name = "Sources";
+			refType = 4;
+		};
+		7CABE3C80E79AD2B307756D2 = {
+			isa = PBXGroup;
+			children = (
+				"9B75A076560A1D37CB1B5990");
+			name = "Sources [qmake]";
+			refType = 4;
+		};
+		A0A52A2ADF7A1E2A99738674 = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			generatedFileNames = (
+				"EA40C329369058E85581C12F",
+				"B366BEFA63725EA7887385CC",
+				"0F21F577742EE6C22AE7B6E1",
+				"39866FB9AA631ADEAFE0BF36",
+				"91045F47A4177A9D6E695A15",
+				"4E89DA950C0F706AFA376912",
+				"2E55B28457DE253D128A3CF3",
+				"BCD2F89EE0F31A4E90551C09",
+				"AE79E70BB9727EFFCE9C8928",
+				"9A89C83A19E3B2C3D905F93E",
+				"04B4D0009C603733DBD20CD5",
+				"69F80FFDD30D981BEDB57A98",
+				"A9A3990E1947089A667EC596",
+				"16F8C08E120B1964D6D1B705",
+				"8176544B3A6BD207AD1C146D",
+				"C0CCD7F4CB6659C16DF1DDA1",
+				"2DC21713446AC2761552C554",
+				"339D5515BEEEBAF86CB84077",
+				"C2E48463D06C7A07803C1E2D",
+				"3410ACE8D96366F595E630DC",
+				"BF6D8D580CE1D91A3D695EF5",
+				"0700118F9F9641A491B41069",
+				"CE1DFA02540F644F0572CF5B",
+				"A93FE906ED2C9E56946629CC",
+				"C7717D979A4DDAB20FCAA6C4",
+				"598CA562F05169728FD52EA2",
+				"58FD4FCAD8120EB932D75BAC",
+				"FC7DDC024EB7F5AA866CB7AA",
+				"EB202670442991442BA36808",
+				"1BF6FE3CB023D150F2C8CFA9",
+				"FF705539CC6838C3C8A53768",
+				"BAF3599790DB16A421CAEA80",
+				"86B57BF3372E17E75E6550EB",
+				"8EE9312215F1F52262F6F156",
+				"F5EB4B62DE26E9F2F6536CD0",
+				"A0E3D5BA4A54157FC1986B88",
+				"AF4BE7986DB1AC0FA2F141E3",
+				"8854633177E934856B83F549",
+				"395DDD6F19604EA8156FC698",
+				"51704014251758CF590FD1D4",
+				"EF8765C093A51ECF2E5584E4",
+				"B21540AA38BCF7CDD0E5520C",
+				"AA5919C354B36192D478F03A",
+				"1FBD95256B8946F022FA807D",
+				"F487669F1E29D969A8A9BBA0");
+			isa = PBXShellScriptBuildPhase;
+			name = "Qt Preprocessors";
+			neededFileNames = (
+				"EA40C329369058E85581C12F",
+				"B366BEFA63725EA7887385CC",
+				"0F21F577742EE6C22AE7B6E1",
+				"39866FB9AA631ADEAFE0BF36",
+				"91045F47A4177A9D6E695A15",
+				"4E89DA950C0F706AFA376912",
+				"2E55B28457DE253D128A3CF3",
+				"BCD2F89EE0F31A4E90551C09",
+				"AE79E70BB9727EFFCE9C8928",
+				"9A89C83A19E3B2C3D905F93E",
+				"04B4D0009C603733DBD20CD5",
+				"69F80FFDD30D981BEDB57A98",
+				"A9A3990E1947089A667EC596",
+				"16F8C08E120B1964D6D1B705",
+				"8176544B3A6BD207AD1C146D",
+				"C0CCD7F4CB6659C16DF1DDA1",
+				"2DC21713446AC2761552C554",
+				"339D5515BEEEBAF86CB84077",
+				"C2E48463D06C7A07803C1E2D",
+				"3410ACE8D96366F595E630DC",
+				"BF6D8D580CE1D91A3D695EF5",
+				"0700118F9F9641A491B41069",
+				"CE1DFA02540F644F0572CF5B",
+				"A93FE906ED2C9E56946629CC",
+				"C7717D979A4DDAB20FCAA6C4",
+				"598CA562F05169728FD52EA2",
+				"58FD4FCAD8120EB932D75BAC",
+				"FC7DDC024EB7F5AA866CB7AA",
+				"EB202670442991442BA36808",
+				"1BF6FE3CB023D150F2C8CFA9",
+				"FF705539CC6838C3C8A53768",
+				"BAF3599790DB16A421CAEA80",
+				"86B57BF3372E17E75E6550EB",
+				"8EE9312215F1F52262F6F156",
+				"F5EB4B62DE26E9F2F6536CD0",
+				"A0E3D5BA4A54157FC1986B88",
+				"AF4BE7986DB1AC0FA2F141E3",
+				"8854633177E934856B83F549",
+				"395DDD6F19604EA8156FC698",
+				"51704014251758CF590FD1D4",
+				"EF8765C093A51ECF2E5584E4",
+				"B21540AA38BCF7CDD0E5520C",
+				"AA5919C354B36192D478F03A",
+				"1FBD95256B8946F022FA807D",
+				"F487669F1E29D969A8A9BBA0");
+			shellPath = "/bin/sh";
+			shellScript = "make\ -C\ /Users/luc/Documents/workspace/libIscore\ -f\ \'Iscore.xcodeproj/qt_preprocess.mak\'";
+		};
+		C29B8785722055ED95EF7B57 = {
+			buildActionMask = 2147483647;
+			files = (
+				"EA40C329369058E85581C12F",
+				"B366BEFA63725EA7887385CC",
+				"0F21F577742EE6C22AE7B6E1",
+				"39866FB9AA631ADEAFE0BF36",
+				"91045F47A4177A9D6E695A15",
+				"4E89DA950C0F706AFA376912",
+				"2E55B28457DE253D128A3CF3",
+				"BCD2F89EE0F31A4E90551C09",
+				"AE79E70BB9727EFFCE9C8928",
+				"9A89C83A19E3B2C3D905F93E",
+				"04B4D0009C603733DBD20CD5",
+				"69F80FFDD30D981BEDB57A98",
+				"A9A3990E1947089A667EC596",
+				"16F8C08E120B1964D6D1B705",
+				"8176544B3A6BD207AD1C146D",
+				"C0CCD7F4CB6659C16DF1DDA1",
+				"2DC21713446AC2761552C554",
+				"339D5515BEEEBAF86CB84077",
+				"C2E48463D06C7A07803C1E2D",
+				"3410ACE8D96366F595E630DC",
+				"BF6D8D580CE1D91A3D695EF5",
+				"0700118F9F9641A491B41069",
+				"CE1DFA02540F644F0572CF5B",
+				"A93FE906ED2C9E56946629CC",
+				"C7717D979A4DDAB20FCAA6C4",
+				"598CA562F05169728FD52EA2",
+				"58FD4FCAD8120EB932D75BAC",
+				"FC7DDC024EB7F5AA866CB7AA",
+				"EB202670442991442BA36808",
+				"1BF6FE3CB023D150F2C8CFA9",
+				"FF705539CC6838C3C8A53768",
+				"BAF3599790DB16A421CAEA80",
+				"86B57BF3372E17E75E6550EB",
+				"8EE9312215F1F52262F6F156",
+				"F5EB4B62DE26E9F2F6536CD0",
+				"A0E3D5BA4A54157FC1986B88",
+				"AF4BE7986DB1AC0FA2F141E3",
+				"8854633177E934856B83F549",
+				"395DDD6F19604EA8156FC698",
+				"51704014251758CF590FD1D4",
+				"EF8765C093A51ECF2E5584E4",
+				"B21540AA38BCF7CDD0E5520C",
+				"AA5919C354B36192D478F03A",
+				"1FBD95256B8946F022FA807D",
+				"F487669F1E29D969A8A9BBA0");
+			isa = PBXSourcesBuildPhase;
+			name = "Build Sources";
+		};
+		2A1043669E6E5A7426EA502A = {
+			buildActionMask = 2147483647;
+			files = (
+				);
+			isa = PBXFrameworksBuildPhase;
+			name = "Frameworks & Libraries";
+		};
+		F6069D5A5DA8AA28EDB8B3C6 = {
+			name = "Project Copy";
+			buildActionMask = 2147483647;
+			dstPath = "/Users/luc/Documents/workspace/libIscore";
+			dstSubfolderSpec = 0;
+			files = (
+"07E0DFA73EB56DCB9E28CDD9");
+			isa = PBXCopyFilesBuildPhase;
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		07E0DFA73EB56DCB9E28CDD9 = {
+			fileRef = "C11C76338C75D9A4E045BBAC";
+			isa = PBXBuildFile;
+			settings = {
+			};
+		};
+		05596AB53D8D521C69802C27 = {
+			children = (
+				"FB61758D0F0FDA4BA867C3D5",
+				"883D7615C4D2DE3FA1218F12",
+				"7CABE3C80E79AD2B307756D2");
+			isa = PBXGroup;
+			name = "Iscore";
+			path = "";
+			refType = 4;
+		};
+		C11C76338C75D9A4E045BBAC = {
+			isa = PBXFileReference;
+			explicitFileType = "compiled.mach-o.dylib";
+			path = "libIscore.a";
+			refType = 3;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		068F80C7519D0528FB08E821 = {
+			children = (
+				"C11C76338C75D9A4E045BBAC");
+			isa = PBXGroup;
+			name = "Products";
+			refType = 4;
+		};
+		57C7690595233C127829585A = {
+			buildPhases = (
+				"D7BA7D76DAB5DD13389D6332",
+				"A0A52A2ADF7A1E2A99738674",
+				"F6069D5A5DA8AA28EDB8B3C6",
+				"C29B8785722055ED95EF7B57",
+				"2A1043669E6E5A7426EA502A");
+			buildSettings = {
+				HEADER_SEARCH_PATHS = (
+					".",
+					"Includes",
+					"/usr/local/include/IScore",
+					"/usr/local/include",
+					"/usr/local/include/libxml2",
+					"/usr/local/include/IScore",
+					".",
+					"Includes",
+					"EnginesPrivate",
+					"ECOMachine",
+					"ECOMachine/PetriNet",
+					"ECOMachine/Process",
+					"Editor/CSP",
+					"StoryLine",
+					"Editor/gecode-solver",
+					"Editor",
+					"/usr/local/include",
+					"/System/Library/Frameworks/CarbonCore.framework/Headers",
+					"/usr/local/Qt4.7/mkspecs/macx-xcode");
+				LIBRARY_SEARCH_PATHS = (
+					);
+				OPTIMIZATION_CFLAGS = (
+					);
+				OTHER_CFLAGS = (
+					"-pipe",
+					"-O2",
+					"-fPIC");
+				OTHER_CPLUSPLUSFLAGS = (
+					"-pipe",
+					"-O2",
+					"-fPIC");
+				LEXFLAGS = "";
+				YACCFLAGS = "-d";
+				OTHER_REZFLAGS = "";
+				SECTORDER_FLAGS = "";
+				WARNING_CFLAGS = "";
+				PREBINDING = NO;
+				BUILD_ROOT = "/Users/luc/Documents/workspace/libIscore";
+				INSTALL_PATH = "";
+				DYLIB_CURRENT_VERSION = "1.0.0";
+				DYLIB_COMPATIBILITY_VERSION = "1.0";
+				MACOSX_DEPLOYMENT_TARGET = "10.4";
+				LIBRARY_STYLE = "STATIC";
+				PRODUCT_NAME = "Iscore";
+			};
+			conditionalBuildSettings = {
+			};
+			dependencies = (
+				);
+			productReference = "C11C76338C75D9A4E045BBAC";
+			shouldUseHeadermap = 1;
+			isa = PBXNativeTarget;
+			name = "Iscore";
+			productName = "Iscore";
+			productType = "com.apple.product-type.library.static";
+			startupPath = "<<ProjectDirectory>>";
+		};
+		8DB1DD96F65B1BF1FFC506E0 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+			};
+			name = "Debug";
+		};
+		2C641C3335766025DD51B7BD = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "NO";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "YES";
+				GCC_OPTIMIZATION_LEVEL = "0";
+			};
+			isa = "PBXBuildStyle";
+			name = "Debug";
+		};
+		95E1EB2E5DDD587BE5B3E548 = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+			};
+			name = "Release";
+		};
+		26DE8D2AEA4B3714B41E931F = {
+			buildRules = (
+				);
+			buildSettings = {
+				COPY_PHASE_STRIP = "YES";
+				GCC_GENERATE_DEBUGGING_SYMBOLS = "NO";
+			};
+			isa = "PBXBuildStyle";
+			name = "Release";
+		};
+		2A951308CDB28F104D0A4BD2 = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				"8DB1DD96F65B1BF1FFC506E0",
+				"95E1EB2E5DDD587BE5B3E548");
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationIsName = "Release";
+		};
+		91B15E841AA80083484172DE = {
+			buildStyles = (
+				"2C641C3335766025DD51B7BD",
+				"26DE8D2AEA4B3714B41E931F");
+			hasScannedForEncodings = 1;
+			isa = PBXProject;
+			mainGroup = "05596AB53D8D521C69802C27";
+			buildConfigurationList = "2A951308CDB28F104D0A4BD2";
+			projectDirPath = "";
+			targets = (
+				"57C7690595233C127829585A");
+		};
+	};
+	rootObject = "91B15E841AA80083484172DE";
+}
