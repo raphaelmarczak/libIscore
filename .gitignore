@@ -3,3 +3,8 @@ Release/*
 Debug*
 *.svn*
 *.mk
+Iscore.xcodeproj*
+compiler_*
+#*
+*~
+Makefile

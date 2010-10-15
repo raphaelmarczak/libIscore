@@ -3,7 +3,7 @@ TARGET = Iscore
 CONFIG = staticlib
 
 linux-g++ {
-INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/local/include/Iscore
+INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/include/libxml2 /usr/local/include/Iscore
 QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/usr/lib/libxml2
 LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecodeflatzinc -lgecodekernel -lgecodeminimodel -lgecodescheduling -lgecodeset -lgecodesupport -lgecodegraph
 }
