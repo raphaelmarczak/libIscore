@@ -579,14 +579,22 @@ void PetriNet::removeWaitedTriggerPointMessageAction()
 
 void PetriNet::pushTransitionToCrossWhenAcceleration(Transition* t)
 {
-	transitionList::iterator it;
-
-	it = std::find(m_transitionsToCrossWhenAcceleration.begin(), m_transitionsToCrossWhenAcceleration.end(), t);
-
-	if (it != m_transitionsToCrossWhenAcceleration.end()) {
-		m_transitionsToCrossWhenAcceleration.push_back(t);
-	}
+// This function is useless because the implementation is wrong
+// The GOTO and Acceleration will work without this function (but will
+// not be optimized).
+//
+// This fucntion should be better implemented in next version !
+//
+//	transitionList::iterator it;
+//
+//	it = std::find(m_transitionsToCrossWhenAcceleration.begin(),
+// m_transitionsToCrossWhenAcceleration.end(), t);
+//
+//	if (it != m_transitionsToCrossWhenAcceleration.end()) {
+//		m_transitionsToCrossWhenAcceleration.push_back(t);
+//	}
 }
+
 
 void PetriNet::addInternPetriNet(Transition* startTransition, Transition* endTransition, PetriNet* petriNet)
 {
