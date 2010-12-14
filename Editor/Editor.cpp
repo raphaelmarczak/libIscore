@@ -101,8 +101,6 @@ unsigned int Editor::addBox(int boxBeginPos, int boxLength, unsigned int motherI
 																		motherBox->lengthValue(), motherBox->lengthValue(),
 																		movedBox);
 
-					std::cout << motherId << " add relation " << hierarchyRelation << std::endl;
-
 					motherBox->setHierarchyInformations(hierarchyRelation);
 				}
 			}
