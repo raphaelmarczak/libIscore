@@ -649,6 +649,32 @@ bool Engines::getCurveRedundancy(unsigned int boxId, const std::string & address
 	return curveRedundancyInformation;
 }
 
+void Engines::setCurveMuteState(unsigned int boxId, const std::string & address, bool muteState)
+{
+	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
+
+	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
+		SendNetworkMessageProcess* currentSendOSCProcess = (SendNetworkMessageProcess*) currentProcess;
+		currentSendOSCProcess->setCurveMuteStateInformation(address, muteState);
+	}
+}
+
+bool Engines::getCurveMuteState(unsigned int boxId, const std::string & address)
+{
+	ECOProcess* currentProcess = getExecutionMachine()->getProcess(boxId);
+
+	bool curveMuteState = false;
+
+	if ((currentProcess->getType() == PROCESS_TYPE_NETWORK_MESSAGE_TO_SEND)) {
+		SendNetworkMessageProcess* currentSendOSCProcess = (SendNetworkMessageProcess*) currentProcess;
+		curveMuteState = currentSendOSCProcess->getCurveMuteStateInformation(address);
+	} else {
+		//TODO : exception
+	}
+
+	return curveMuteState;
+}
+
 void Engines::getCurveArgTypes(std::string stringToParse, std::vector<std::string>& result)
 {
 	result.clear();

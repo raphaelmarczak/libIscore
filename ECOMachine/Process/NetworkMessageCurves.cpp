@@ -57,6 +57,8 @@ NetworkMessageCurves::NetworkMessageCurves()
 	m_avoidRedondance = true;
 	m_sampleBySec = DEFAUT_SAMPLE_BY_SEC;
 	m_storeFactor = DEFAUT_STORE_FACTOR;
+
+	m_muteState = false;
 }
 
 NetworkMessageCurves::NetworkMessageCurves(std::string address)
@@ -64,6 +66,8 @@ NetworkMessageCurves::NetworkMessageCurves(std::string address)
 	m_avoidRedondance = true;
 	m_sampleBySec = DEFAUT_SAMPLE_BY_SEC;
 	m_storeFactor = DEFAUT_STORE_FACTOR;
+
+	m_muteState = false;
 
 	m_address = address;
 }
@@ -76,6 +80,16 @@ void NetworkMessageCurves::setAvoidRedondance(bool avoidRedondance)
 bool NetworkMessageCurves::getAvoidRedondance()
 {
 	return m_avoidRedondance;
+}
+
+void NetworkMessageCurves::setMuteState(bool muteState)
+{
+	m_muteState = muteState;
+}
+
+bool NetworkMessageCurves::getMuteState()
+{
+	return m_muteState;
 }
 
 void NetworkMessageCurves::setSampleBySec(int sampleBySec)

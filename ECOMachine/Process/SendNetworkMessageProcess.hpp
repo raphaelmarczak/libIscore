@@ -101,6 +101,9 @@ public:
 	void setAvoidRedondanceInformation(std::string address, bool avoidRedondance);
 	bool getAvoidRedondanceInformation(std::string address);
 
+	void setCurveMuteStateInformation(std::string address, bool muteState);
+	bool getCurveMuteStateInformation(std::string address);
+
 	std::vector<std::string> getCurvesAdress();
 
 	void removeAllCurves();

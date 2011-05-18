@@ -83,10 +83,14 @@ public:
 
 	void computeAllCurves(StringParser first, StringParser second, int duration);
 
+	void setMuteState(bool muteState);
+	bool getMuteState();
+
 	void store(xmlNodePtr father);
 
 private:
 	bool m_avoidRedondance;
+	bool m_muteState;
 	unsigned int m_sampleBySec;
 	int m_storeFactor;
 

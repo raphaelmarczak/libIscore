@@ -304,6 +304,27 @@ bool SendNetworkMessageProcess::getAvoidRedondanceInformation(std::string addres
 	}
 }
 
+void SendNetworkMessageProcess::setCurveMuteStateInformation(std::string address, bool muteState)
+{
+	std::map<std::string, NetworkMessageCurves>::iterator it = m_curves.find(address);
+
+	if (it != m_curves.end()) {
+		it->second.setMuteState(muteState);
+	}
+}
+
+bool SendNetworkMessageProcess::getCurveMuteStateInformation(std::string address)
+{
+	std::map<std::string, NetworkMessageCurves>::iterator it = m_curves.find(address);
+
+	if (it != m_curves.end()) {
+		return it->second.getMuteState();
+	} else {
+		std::cout << "Impossible to get the mute state Information ! " << address << " is not defined as Curves" << std::endl;
+		return false;
+	}
+}
+
 std::vector<std::string> SendNetworkMessageProcess::getCurvesAdress()
 {
 	std::vector<std::string> returnVector;
@@ -380,17 +401,18 @@ void SendNetworkMessageProcess::computeCurves(unsigned int firstStep, unsigned i
 		std::map<std::string, NetworkMessageCurves>::iterator it = m_curves.find(currentAddress);
 
 		if (it != m_curves.end()) {
+			if (!it->second.getMuteState()) {
 
+				std::map<std::string, std::string>::iterator it1 = firstMapForInterpolation.find(currentAddress);
+				std::map<std::string, std::string>::iterator it2 = secondMapForInterpolation.find(currentAddress);
 
-			std::map<std::string, std::string>::iterator it1 = firstMapForInterpolation.find(currentAddress);
-			std::map<std::string, std::string>::iterator it2 = secondMapForInterpolation.find(currentAddress);
+				if ((it1 != firstMapForInterpolation.end()) && (it2 != secondMapForInterpolation.end())) {
+					NetworkMessageCurves currentCurves = it->second;
 
-			if ((it1 != firstMapForInterpolation.end()) && (it2 != secondMapForInterpolation.end())) {
-				NetworkMessageCurves currentCurves = it->second;
+					currentCurves.computeAllCurves(StringParser(it1->second), StringParser(it2->second), duration);
 
-				currentCurves.computeAllCurves(StringParser(it1->second), StringParser(it2->second), duration);
-
-				m_curvesToSend.push_back(currentCurves);
+					m_curvesToSend.push_back(currentCurves);
+				}
 			}
 
 			++it;

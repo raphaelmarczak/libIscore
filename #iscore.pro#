@@ -11,7 +11,7 @@ LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecod
 macx-g++ {
 INCLUDEPATH += . ./Includes /Library/Frameworks/ /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2
 QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/System/Library/Frameworks/ -L/Library/Frameworks/
-LIBS += -liscore -lDeviceManager -lxml2 -framework gecode
+LIBS += -liscore -lDeviceManager -framework gecode -framework libxml
 }
 
 DEPENDPATH += . \
