@@ -712,6 +712,7 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 				xmlChar* xmlAddress = xmlGetProp(xmlStep, BAD_CAST "address");
 				xmlChar* xmlSampleRate = xmlGetProp(xmlStep, BAD_CAST "samplerate");
 				xmlChar* xmlRedundancy = xmlGetProp(xmlStep, BAD_CAST "avoidRedundancy");
+				xmlChar* xmlMuteState = xmlGetProp(xmlStep, BAD_CAST "muteState");
 
 				if (xmlAddress != NULL) {
 					std::string address = XMLConversion::xmlCharToString(xmlAddress);
@@ -723,7 +724,6 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 					}
 
 					if (xmlRedundancy != NULL) {
-
 						std::string avoidRedundancy = XMLConversion::xmlCharToString(xmlRedundancy);
 
 						if (avoidRedundancy=="true") {
@@ -734,7 +734,16 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 
 					}
 
+					if (xmlMuteState != NULL) {
+						std::string muteState = XMLConversion::xmlCharToString(xmlMuteState);
 
+						if (muteState=="true") {
+							setCurveMuteStateInformation(address, true);
+						} else {
+							setCurveMuteStateInformation(address, false);
+						}
+
+					}
 
 					for (xmlCurvesArg = xmlStep->children; xmlCurvesArg != NULL; xmlCurvesArg = xmlCurvesArg->next) {
 						if (xmlStrEqual(xmlCurvesArg->name, BAD_CAST "ARGUMENT")) {
@@ -773,8 +782,6 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 						}
 					}
 				}
-
-
 			}
 		}
 	}

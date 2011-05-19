@@ -344,6 +344,12 @@ void NetworkMessageCurves::store(xmlNodePtr father)
 		xmlSetProp(node, BAD_CAST "avoidRedundancy", BAD_CAST "false");
 	}
 
+	if (m_muteState) {
+		xmlSetProp(node, BAD_CAST "muteState", BAD_CAST "true");
+	} else {
+		xmlSetProp(node, BAD_CAST "muteState", BAD_CAST "false");
+	}
+
 	xmlAddChild(father, node);
 
 	for (unsigned int i = 0; i < m_argCurves.size() ; ++i) {
