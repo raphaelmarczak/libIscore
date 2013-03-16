@@ -1,6 +1,10 @@
 #!/bin/sh
 
 sudo cp libIscore.a /usr/local/lib/
-sudo cp libIscore.so* /usr/local/lib/
+sudo cp libIscore.so.1.0.0 /usr/local/lib/
+sudo ln /usr/local/lib/libIscore.so.1.0.0 /usr/local/lib/libIscore.so.1.0
+sudo ln /usr/local/lib/libIscore.so.1.0.0 /usr/local/lib/libIscore.so.1
+sudo ln /usr/local/lib/libIscore.so.1.0.0 /usr/local/lib/libIscore.so
+sudo ldconfig
 sudo mkdir -p /usr/local/include/IScore
 sudo cp -R Includes/* /usr/local/include/IScore/
