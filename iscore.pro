@@ -10,9 +10,7 @@ LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecod
 
 linux-g++-64 {
 INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/include/libxml2 /usr/local/include/Iscore
-QMAKE_CLFAGS += -m32
-QMAKE_CXXFLAGS += -m32
-QMAKE_LFLAGS += -m32 -L/usr/local/lib/ -L/usr/lib/ -L/usr/lib/libxml2 -L/usr/local/lib/IScore
+QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/usr/lib/libxml2 -L/usr/local/lib/IScore
 LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecodeflatzinc -lgecodekernel -lgecodeminimodel -lgecodescheduling -lgecodeset -lgecodesupport -lgecodegraph
 }
 
