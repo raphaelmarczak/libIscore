@@ -8,3 +8,4 @@ compiler_*
 #*
 *~
 Makefile
+libIscore.*
