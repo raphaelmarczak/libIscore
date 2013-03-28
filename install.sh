@@ -12,7 +12,7 @@ fi
 if [ -x libIscore.1.0.0.dylib ]
 then
 	sudo cp libIscore.1.0.0.dylib /usr/local/lib/
-	sudo ln -s /usr/local/lib/libIscore.1.0.0.dylib /usr/local/lib/libIscore.1.0.dylib
+#	sudo ln -s /usr/local/lib/libIscore.1.0.0.dylib /usr/local/lib/libIscore.1.0.dylib
 	sudo ln -s /usr/local/lib/libIscore.1.0.0.dylib /usr/local/lib/libIscore.1.dylib
 	sudo ln -s /usr/local/lib/libIscore.1.0.0.dylib /usr/local/lib/libIscore.dylib
 fi
