@@ -61,6 +61,8 @@ ConstrainedBox::ConstrainedBox(CSPConstrainedVariable *beg,  CSPConstrainedVaria
 	m_maxBound = NO_BOUND;
 
 	m_hierarchyRelationId = NO_ID;
+
+
 }
 
 void
@@ -309,4 +311,36 @@ ConstrainedBox::store(xmlNodePtr father)
 		xmlAddChild(node, optionalArgumentNode);
 		++it;
 	}
+}
+
+void
+ConstrainedBox::lockDuration(){
+  //Pour empêcher toute modification de durée de la boîte :
+  //On réduit le domaine de la variable contrainte length à [value,value] (la même valeur) ainsi la durée est inmodifiable.
+
+  int maxSceneWidth = getFirstControlPoint()->getBeginMax();
+
+  //Solver
+  getCSP()->getSolver()->setIntVar(getLengthVar()->getID(),lengthValue(), lengthValue(), lengthValue(), (int)LENGTH_VAR_TYPE);
+
+  //CSP
+  getLengthVar()->setID(getCSP()->getSolver()->addIntVar(10, maxSceneWidth, lengthValue(), (int)LENGTH_VAR_TYPE));
+  getLengthVar()->setMin(lengthValue());
+  getLengthVar()->setMax(lengthValue());
+}
+
+void
+ConstrainedBox::unlockDuration(){
+  //Le domaine de la variable constrainte length est alors ouvert.
+  //A l'inverse de la fonction précédente, on réouvre ce domaine pour autoriser la modification de durée.
+
+  int maxSceneWidth = getFirstControlPoint()->getBeginMax();
+
+  //Solver
+  getCSP()->getSolver()->setIntVar(getLengthVar()->getID(),10, maxSceneWidth, lengthValue(), (int)LENGTH_VAR_TYPE);
+
+  //CSP
+//  getLengthVar()->setID(getCSP()->getSolver()->addIntVar(10, maxSceneWidth, lengthValue(), (int)LENGTH_VAR_TYPE));
+  getLengthVar()->setMin(10);
+  getLengthVar()->setMax(maxSceneWidth);
 }

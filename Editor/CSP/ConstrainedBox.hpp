@@ -119,6 +119,9 @@ public :
 
 	void store(xmlNodePtr father);
 
+	void lockDuration();
+	void unlockDuration();
+
 private :
 	//std::string _ipAddress;
 	//unsigned int _port;

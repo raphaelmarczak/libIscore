@@ -371,6 +371,7 @@ public :
 	unsigned int getMaxTriggerId();
 
 	void changeAllBoxMaxSceneWidth(int newValue);
+	Solver *getSolver();
 
 private :
 

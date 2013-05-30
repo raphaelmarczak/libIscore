@@ -149,17 +149,22 @@ IntegerVariable::updateValue(int val)
 void
 IntegerVariable::adjustMinMax(bool reduceDomain, int reduction)
 {
+
 	if (reduceDomain)
 	{
-		if (_val - reduction < _infBound)
+		if (_val - reduction < _infBound){
 			_min = _infBound;
-		else
+		  }
+		else{
 			_min = _val - reduction;
+		  }
 
-		if (_val + reduction > _supBound)
+		if (_val + reduction > _supBound){
 			_max = _supBound;
-		else
+		  }
+		else{
 			_max = _val + reduction;
+		  }
 	}
 	else
 	{

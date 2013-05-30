@@ -162,3 +162,23 @@ void ConstrainedTemporalEntity::changeMax(Solver * solver, int newValue)
 	_lengthVar->setMax(newValue);
 
 }
+
+void
+ConstrainedTemporalEntity::setBeginVar(CSPConstrainedVariable *begin){
+  _beginVar = begin;
+}
+
+void
+ConstrainedTemporalEntity::setLengthVar(CSPConstrainedVariable *length){
+  _lengthVar = length;
+}
+
+CSPConstrainedVariable *
+ConstrainedTemporalEntity::getBeginVar(){
+  return _beginVar;
+}
+
+CSPConstrainedVariable *
+ConstrainedTemporalEntity::getLengthVar(){
+  return _lengthVar;
+}

@@ -101,13 +101,13 @@ CustomSpace::addVariable(int min, int max)
 {
 //TODO: avant "	IntVarArray newArray(this, _dat.size()+1);"
 //TODO:	avant "IntVar v(this, min, max);"
+
 	IntVarArray newArray(*this, _dat.size()+1);
-	IntVar v(*this, min, max);
+	IntVar v(*this, min, max); //crash
 
 	// Copy from the old array to the new
 	for (int i=0; i<newArray.size()-1; i++)
 		newArray[i] = _dat[i];
-
 	newArray[newArray.size()-1] = v;
 
 	// Replace the array

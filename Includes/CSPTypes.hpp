@@ -83,7 +83,6 @@ const unsigned int RELATION_NOT_CREATED = NO_ID;
 const unsigned int NO_MOTHER = NO_ID;
 
 
-
 /// Different types of variables linked to the boxes
 enum VariableType { BEGIN_VAR_TYPE = 1, LENGTH_VAR_TYPE = 100, INTERVAL_VAR_TYPE = 50, VPOS_VAR_TYPE = 1, VSIZE_VAR_TYPE = 100 };
 

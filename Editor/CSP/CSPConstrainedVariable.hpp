@@ -66,6 +66,7 @@ public :
 	int getID() const;
 	void setID(int);
 	int getMin() const;
+	void setMin(int min);
 	int getMax() const;
 	int getValue() const;
 	void setValue(int val);

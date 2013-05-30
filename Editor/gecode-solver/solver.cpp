@@ -278,19 +278,19 @@ Solver::updateState()
 	{
 		IntegerVariable *v = q->second;
 
-		if ((_suggest) && (_maxModification != NO_MAX_MODIFICATION)) {
-			v->adjustMinMax(_suggest, _maxModification);
-		} else {
+		if ((_suggest) && (_maxModification != NO_MAX_MODIFICATION)) {		    		    
+			v->adjustMinMax(_suggest, _maxModification);		
+		} else {		    		    
 			v->adjustMinMax(_suggest);
 		}
 
 
-		v->setIndex(_space->addVariable(v->getVal(), v->getVal()));
-		v->setPosDeltaIndex(_space->addVariable(0, v->getMax() - v->getVal() + 1));
-		v->setNegDeltaIndex(_space->addVariable(0, v->getVal() - v->getMin() + 1));
+		v->setIndex(_space->addVariable(v->getVal(), v->getVal()));		
+		v->setPosDeltaIndex(_space->addVariable(0, v->getMax() - v->getVal() + 1));		
+		v->setNegDeltaIndex(_space->addVariable(0, v->getVal() - v->getMin() + 1));//crash
 		v->setTotalIndex(_space->addVariable(v->getMin(), v->getMax()));
-	}
 
+	}
 	// add constraints to space
 	for (map<int, LinearConstraint*>::iterator p = _constraintsMap->begin(); p != _constraintsMap->end(); p++)
 	{
@@ -409,8 +409,7 @@ Solver::suggestValues(int *varsIDs, int* values, int nbVars, int maxModification
 			_strongVars->push_back(varsIDs[i]);
 		}
 	}
-
-	bool res = updateVariablesValues();
+	bool res = updateVariablesValues();//crash
 
 	_strongVars->clear();
 	delete _strongVars;
@@ -424,8 +423,7 @@ Solver::suggestValues(int *varsIDs, int* values, int nbVars, int maxModification
 bool
 Solver::updateVariablesValues()
 {
-	CustomSpace *result = solve();
-
+	CustomSpace *result = solve();//crash
 	if (result == NULL) {
 		return false;
 	}
@@ -441,14 +439,13 @@ Solver::updateVariablesValues()
 
 	for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
 		(q->second)->updateValue(_space);
-
 	return true;
 }
 
 CustomSpace *
 Solver::solve()
 {
-	updateState();
+	updateState();//crash
 
 	// branch variables
 	_space->doBranching();

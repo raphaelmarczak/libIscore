@@ -100,15 +100,35 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 
 	CSPConstrainedVariable *begin = new CSPConstrainedVariable(_solver->addIntVar(1, maxSceneWidth, boxBeginPos, (int)BEGIN_VAR_TYPE),
 			1, maxSceneWidth, boxBeginPos, BEGIN_VAR_TYPE);
-	CSPConstrainedVariable *length = new CSPConstrainedVariable(_solver->addIntVar(10, maxSceneWidth, (int)boxLength, (int)LENGTH_VAR_TYPE),
-			10, maxSceneWidth, (int)boxLength, LENGTH_VAR_TYPE);
+//	CSPConstrainedVariable *length = new CSPConstrainedVariable(_solver->addIntVar(10, maxSceneWidth, (int)boxLength, (int)LENGTH_VAR_TYPE),
+//			10, maxSceneWidth, (int)boxLength, LENGTH_VAR_TYPE);
+
+	// *******************************************************************************************************************************
+	// *******************************************************************************************************************************
+	// Author : Nicolas Hincker
+	//  Pour palier au problème de compression/étirement indésirable de boîtes lors de simples déplacements
+	// -> on interdit par défaut toute modification de durée si on est dans le cas d'un simple déplacement :
+	//    on réduit le domaine de la variable contrainte length à [boxLength,boxLength] ainsi la durée est quoiqu'il arrive non modifiable.
+	//
+	// -> Cependant la boîte sera unlocked dans le cas d'un resize et non d'un déplacement.
+	//
+	// Voir performMoving().
+	// *******************************************************************************************************************************
+
+	CSPConstrainedVariable *length = new CSPConstrainedVariable(_solver->addIntVar((int)boxLength, (int)boxLength, (int)boxLength, (int)LENGTH_VAR_TYPE),
+								    (int)boxLength, (int)boxLength, (int)boxLength, LENGTH_VAR_TYPE);
+
+
+	// *******************************************************************************************************************************
 
 	ConstrainedBox *newBox = new ConstrainedBox(begin, length);
+
 
 	CSPConstrainedVariable *CP2begin = new CSPConstrainedVariable(_solver->addIntVar(1, maxSceneWidth, boxBeginPos + boxLength, (int)BEGIN_VAR_TYPE),
 			1, maxSceneWidth, boxBeginPos + boxLength, BEGIN_VAR_TYPE);
 	CSPConstrainedVariable *CP2length = new CSPConstrainedVariable(_solver->addIntVar(0, maxSceneWidth, 0, (int)LENGTH_VAR_TYPE),
 			0, maxSceneWidth, 0, LENGTH_VAR_TYPE);
+
 
 	newBox->addControlPoint(new ControlPoint(begin, length, boxId), BEGIN_CONTROL_POINT_INDEX);
 	newBox->addControlPoint(new ControlPoint(CP2begin, CP2length, boxId), END_CONTROL_POINT_INDEX);
@@ -117,6 +137,7 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 
 	newBox->getFirstControlPoint()->setProcessStepId(1);
 	newBox->getLastControlPoint()->setProcessStepId(2);
+
 
 	if (motherId != NO_ID) {
 //		ConstrainedBox* mother = getBoxById(motherId);
@@ -432,10 +453,12 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 {
 	int *varsIDs = new int[3];
 	int *values = new int[3];
-
+	int newLength = y - x;
+	bool durationLocked = true;
 
 	//ConstrainedBox* box = (ConstrainedBox*)(*_cedEntities)[boxesId];
 	ConstrainedBox* box = getBoxById(boxesId);
+	int oldLength = box->getLengthVar()->getValue();
 
 	varsIDs[0] = box->getFirstControlPoint()->beginID();
 	values[0] = x;
@@ -446,7 +469,40 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 	values[1] = y;
 
 	varsIDs[2] = box->lengthID();
-	values[2] = y - x;
+	values[2] = newLength;
+
+
+	// *******************************************************************************************************************************
+	// *******************************************************************************************************************************
+	//
+	// Author : Nicolas Hincker
+	//  Pour palier au problème de compression/étirement indésirable de boîtes lors de simples déplacements.
+	//
+	// *******************************************************************************************************************************
+
+        if(oldLength != newLength){
+            //S'il s'agit d'un resize :
+            //  > on "unlock" la boîte après avoir mis à jour la nouvelle valeur de durée (car pour réouvrir le domaine on doit mettre le max à boxLength (TODO : à vérifier))
+            durationLocked = false;
+
+            // ----------------------- unlocklockDuration ---------------------
+            //solver
+            _solver->setIntVar(box->getLengthVar()->getID(),10, maxSceneWidth, values[2], (int)LENGTH_VAR_TYPE);
+
+            //CSP
+            box->getLengthVar()->setMin(10);
+            box->getLengthVar()->setMax(maxSceneWidth);
+            //-----------------------------------------------------------------
+
+            //TODO
+//            box->getLengthVar()->setValue(newLength);
+//            box->unlockDuration();
+//          au lieu de unlock duration ci-dessus
+
+	  }
+
+	// *******************************************************************************************************************************
+	// *******************************************************************************************************************************
 
 	for (int i = 0; i < 3 ; ++i) {
 		if (values[i] < 1) {
@@ -456,16 +512,26 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 		}
 	}
 
-
-	bool validSolution = _solver->suggestValues(varsIDs, values, 3, maxModification);
+	bool validSolution = _solver->suggestValues(varsIDs, values, 3, maxModification);//crash
 
 	delete[] varsIDs;
 	delete[] values;
 
+	// -------------------------- lockDuration ------------------------
+	if(!durationLocked){
+	    //solver
+	    _solver->setIntVar(box->getLengthVar()->getID(),newLength, newLength, newLength, (int)LENGTH_VAR_TYPE);
+
+	    //CSP
+	    box->getLengthVar()->setMin(newLength);
+	    box->getLengthVar()->setMax(newLength);
+
+	  }
+	   //-----------------------------------------------------------------
+
 	movedBoxes.clear();
 	if (validSolution) {
 		updateFromSolver(); //TODO: la clef est ici !!!
-
 		map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
 		while (it != _cedEntities->end())
 		{
@@ -1257,6 +1323,11 @@ CSP::addAllenRelation(ConstrainedTemporalEntity *ent1, ConstrainedTemporalEntity
 
 		return newAllen;
 	}
+}
+
+Solver *
+CSP::getSolver(){
+  return _solver;
 }
 
 

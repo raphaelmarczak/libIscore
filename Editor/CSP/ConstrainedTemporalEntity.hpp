@@ -101,6 +101,10 @@ public :
 	unsigned int getId();
 	
 	void changeMax(Solver* solver, int newValue);
+	void setBeginVar(CSPConstrainedVariable *begin);
+	void setLengthVar(CSPConstrainedVariable *length);
+	CSPConstrainedVariable *getBeginVar();
+	CSPConstrainedVariable *getLengthVar();
 
 protected :
 	unsigned int _id;

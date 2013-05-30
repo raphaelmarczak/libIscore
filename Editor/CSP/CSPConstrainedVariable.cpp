@@ -91,3 +91,7 @@ void CSPConstrainedVariable::setMax(int newValue)
 	_max = newValue;
 }
 
+void
+CSPConstrainedVariable::setMin(int min){
+  _min = min;
+}
