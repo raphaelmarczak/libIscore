@@ -762,8 +762,8 @@ void SendNetworkMessageProcess::load(xmlNodePtr root)
 									xmlChar* XMLx = xmlGetProp(xmlCurvesInformation, BAD_CAST "x_percent");
 									xmlChar* XMLy = xmlGetProp(xmlCurvesInformation, BAD_CAST "y_value");
 
-									percent.push_back(XMLConversion::xmlCharToInt(XMLx));
-									y.push_back(XMLConversion::xmlCharToInt(XMLy));
+									percent.push_back(XMLConversion::xmlCharToFloat(XMLx));
+									y.push_back(XMLConversion::xmlCharToFloat(XMLy));
 								} else if (xmlStrEqual(xmlCurvesInformation->name, BAD_CAST "SECTION")) {
 									xmlChar* XMLSectionType = xmlGetProp(xmlCurvesInformation, BAD_CAST "section_type");
 									xmlChar* XMLCoeff = xmlGetProp(xmlCurvesInformation, BAD_CAST "coeff");

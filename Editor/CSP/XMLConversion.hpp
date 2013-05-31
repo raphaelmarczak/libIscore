@@ -83,7 +83,7 @@ public:
 		return result;
 	}
 	
-	static inline unsigned int xmlCharToFloat(xmlChar* xmlChar)
+	static inline float xmlCharToFloat(xmlChar* xmlChar)
 	{
 		float result;
 		std::stringstream ss;
