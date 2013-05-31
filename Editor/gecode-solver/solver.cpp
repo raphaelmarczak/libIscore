@@ -298,7 +298,7 @@ Solver::updateState()
 	}
 
 	//TODO: avant "LinExpr expr;"
-	LinExpr<Gecode::IntVar> expr;
+	LinExpr expr;
 	bool init=false;
 
 	// construct the linear combination of delta variables balanced by the weight associated with their type
@@ -355,34 +355,34 @@ Solver::updateState()
 		if (!init)
 		{
 		//TODO: avant "expr = LinExpr(vars[0], currVar->getWeight()*multiplier);"
-			expr = LinExpr<Gecode::IntVar>(vars[0], currVar->getWeight()*multiplier);
+			expr = LinExpr(vars[0], currVar->getWeight()*multiplier);
 
 			init = true;
 
 			//TODO: avant "LinExpr tmp(vars[1], currVar->getWeight()*multiplier);"
-			LinExpr<Gecode::IntVar> tmp(vars[1], currVar->getWeight()*multiplier);
+			LinExpr tmp(vars[1], currVar->getWeight()*multiplier);
 
 			//TODO : je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
-			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
+			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
 		}
 		else
 		{
 			//TODO: avant "LinExpr tmp(vars[0], currVar->getWeight()*multiplier);"
-			LinExpr<Gecode::IntVar> tmp(vars[0], currVar->getWeight()*multiplier);
+			LinExpr tmp(vars[0], currVar->getWeight()*multiplier);
 
-			//TODO: je ne sais pas : "expr = LinExpr<Gecode::IntVar>(expr, tmp, 1);"
-			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
+			//TODO: je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
+			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
 
 			//TODO: avant "tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);"
-			tmp = LinExpr<Gecode::IntVar>(vars[1], currVar->getWeight()*multiplier);
+			tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);
 
 			//TODO: je ne sas pas : "expr = LinExpr(expr, tmp, 1);"
-			expr = LinExpr<Gecode::IntVar>(expr, Gecode::LinExpr<Gecode::IntVar>::NT_ADD, tmp);
+			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
 		}
 	}
 
 	// the objective function is a linear combination of the delta variables (lengths are more important than beginnings)
-	_space->setObjFunc(post(*_space, expr));
+	_space->setObjFunc(Gecode::expr(*_space, expr));
 }
 
 // edit some variables and try to reach the new values
@@ -437,7 +437,7 @@ Solver::updateVariablesValues()
 		_space = NULL;
 	}
 	_space = (CustomSpace*)result->clone(false);
-	delete result; // des fois ça merde !!!
+	delete result; // des fois \8Da merde !!!
 
 	for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
 		(q->second)->updateValue(_space);
@@ -486,7 +486,7 @@ Solver::run()
 
 		if (last)
 		{
-			delete last; // des fois ça merde !!!
+			delete last; // des fois \8Da merde !!!
 			last = NULL;
 		}
 

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = Iscore
-CONFIG = staticlib
+#CONFIG = staticlib
 
 linux-g++ {
 INCLUDEPATH += . ./Includes /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2 /usr/include/libxml2 /usr/local/include/Iscore
@@ -17,7 +17,10 @@ LIBS += -lDeviceManager -lxml2 -lgecodeint -lgecodesearch -lgecodedriver -lgecod
 macx-g++ {
 INCLUDEPATH += . ./Includes /Library/Frameworks/ /usr/local/include/IScore /usr/local/include /usr/local/include/libxml2
 QMAKE_LFLAGS += -L/usr/local/lib/ -L/usr/lib/ -L/System/Library/Frameworks/ -L/Library/Frameworks/
-LIBS += -liscore -lDeviceManager -lxml2 -framework gecode
+QMAKE_CFLAGS_X86_64 += -mmacosx-version-min=10.7
+QMAKE_CXXFLAGS_X86_64 = $$QMAKE_CFLAGS_X86_64
+#LIBS += -liscore -lDeviceManager -lxml2 -framework gecode
+LIBS += -lDeviceManager -lxml2 -framework gecode
 }
 
 DEPENDPATH += . \
