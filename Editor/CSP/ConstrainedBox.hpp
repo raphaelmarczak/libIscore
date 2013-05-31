@@ -120,6 +120,7 @@ public :
 	void store(xmlNodePtr father);
 
 	void lockDuration();
+	void lockDuration(int duration);
 	void unlockDuration();
 
 private :

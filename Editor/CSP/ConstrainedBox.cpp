@@ -318,15 +318,27 @@ ConstrainedBox::lockDuration(){
   //Pour empêcher toute modification de durée de la boîte :
   //On réduit le domaine de la variable contrainte length à [value,value] (la même valeur) ainsi la durée est inmodifiable.
 
-  int maxSceneWidth = getFirstControlPoint()->getBeginMax();
-
   //Solver
   getCSP()->getSolver()->setIntVar(getLengthVar()->getID(),lengthValue(), lengthValue(), lengthValue(), (int)LENGTH_VAR_TYPE);
 
   //CSP
-  getLengthVar()->setID(getCSP()->getSolver()->addIntVar(10, maxSceneWidth, lengthValue(), (int)LENGTH_VAR_TYPE));
+  getLengthVar()->setID(getCSP()->getSolver()->addIntVar(lengthValue(), lengthValue(), lengthValue(), (int)LENGTH_VAR_TYPE));
   getLengthVar()->setMin(lengthValue());
   getLengthVar()->setMax(lengthValue());
+}
+
+void
+ConstrainedBox::lockDuration(int duration){
+  //Pour empêcher toute modification de durée de la boîte :
+  //On réduit le domaine de la variable contrainte length à [value,value] (la même valeur) ainsi la durée est inmodifiable.
+
+  //Solver
+  getCSP()->getSolver()->setIntVar(getLengthVar()->getID(),duration, duration, duration, (int)LENGTH_VAR_TYPE);
+
+  //CSP
+  getLengthVar()->setID(getCSP()->getSolver()->addIntVar(duration, duration, duration, (int)LENGTH_VAR_TYPE));
+  getLengthVar()->setMin(duration);
+  getLengthVar()->setMax(duration);
 }
 
 void

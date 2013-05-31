@@ -495,9 +495,8 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
             //-----------------------------------------------------------------
 
             //TODO
-//            box->getLengthVar()->setValue(newLength);
 //            box->unlockDuration();
-//          au lieu de unlock duration ci-dessus
+//          au lieu du bout de code ci-dessus (mais crash pour le moment)
 
 	  }
 
@@ -519,6 +518,7 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 
 	// -------------------------- lockDuration ------------------------
 	if(!durationLocked){
+
 	    //solver
 	    _solver->setIntVar(box->getLengthVar()->getID(),newLength, newLength, newLength, (int)LENGTH_VAR_TYPE);
 
@@ -526,6 +526,7 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 	    box->getLengthVar()->setMin(newLength);
 	    box->getLengthVar()->setMax(newLength);
 
+	    //TODO : box->lockDuration(newLength); au lieu du bout de code ci-dessous
 	  }
 	   //-----------------------------------------------------------------
 
