@@ -451,6 +451,7 @@ CSP::removeTemporalRelation(unsigned int relationId)
 bool
 CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification)
 {
+  if(x>=0){
 	int *varsIDs = new int[3];
 	int *values = new int[3];
 	int newLength = y - x;
@@ -544,6 +545,9 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 	} else {
 		return false;
 	}
+    }
+  else
+    return false;
 }
 
 vector<BinaryTemporalRelation*> *
