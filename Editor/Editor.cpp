@@ -316,6 +316,7 @@ int Editor::getRelationMaxBound(unsigned int relationId)
 
 bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes, int maxModification)
 {
+  if(x>0){
 	CSP* containingCSP = m_boxIdToContainingCSP[boxId];
 	ConstrainedBox* currentBox = containingCSP->getBoxById(boxId);
 
@@ -395,6 +396,9 @@ bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int
 		getAllBoxesId(movedBoxes);
 		return false;
 	}
+    }
+  else
+    return false;
 }
 
 ConstrainedBox* Editor::getBoxById(unsigned int boxId)
