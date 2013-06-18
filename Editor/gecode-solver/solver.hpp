@@ -65,6 +65,7 @@ private :
 
 	// Gecode space
 	CustomSpace *_space;
+	CustomSpace *_lastSpace;
 
 	// Hash table containing the currently used variables
 	map<int, IntegerVariable*> *_integerVariablesMap;
@@ -107,6 +108,9 @@ public :
 
 	// Accessor to the CustomSpace Pointer
 	CustomSpace *getSpace() const;
+
+	//Reset the previous space
+	void resetSpace();
 
 	// inserts a new entry in the variables map and return the variable ID
 	int addIntVar(int min, int max, int val, int weight);

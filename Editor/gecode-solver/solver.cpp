@@ -47,6 +47,7 @@ knowledge of the CeCILL-C license and that you accept its terms.
 Solver::Solver()
 {
 	_space = new CustomSpace();
+	_lastSpace = new CustomSpace();
 	_integerVariablesMap = new map<int, IntegerVariable*>;
 	_constraintsMap = new map<int, LinearConstraint*>;
 	_engine = new SearchEngine(_space);
@@ -70,6 +71,12 @@ Solver::~Solver()
 	{
 		delete(_space);
 		_space = NULL;
+	}
+
+	if (_lastSpace)
+	{
+		delete(_lastSpace);
+		_lastSpace = NULL;
 	}
 }
 
@@ -265,124 +272,127 @@ Solver::removeConstraint(int constID)
 void
 Solver::updateState()
 {
-	if (_space)
-	{
-		delete _space;
-		_space = NULL;
-	}
+  if (_space)
+    {
+      _lastSpace = (CustomSpace*)_space;
+      delete _space;
+      _space = NULL;
+    }
+  else
+    std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! no space !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
 
-	_space = new CustomSpace();
+  _space = new CustomSpace();
 
-	// create gecode variables
-	for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
-	{
-		IntegerVariable *v = q->second;
+  // create gecode variables
+  for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
+    {
+      IntegerVariable *v = q->second;
 
-		if ((_suggest) && (_maxModification != NO_MAX_MODIFICATION)) {		    		    
-			v->adjustMinMax(_suggest, _maxModification);		
-		} else {		    		    
-			v->adjustMinMax(_suggest);
-		}
+      if ((_suggest) && (_maxModification != NO_MAX_MODIFICATION)) {
+          v->adjustMinMax(_suggest, _maxModification);
+        } else {
+          v->adjustMinMax(_suggest);
+        }
 
 
-		v->setIndex(_space->addVariable(v->getVal(), v->getVal()));		
-		v->setPosDeltaIndex(_space->addVariable(0, v->getMax() - v->getVal() + 1));		
-		v->setNegDeltaIndex(_space->addVariable(0, v->getVal() - v->getMin() + 1));//crash
-		v->setTotalIndex(_space->addVariable(v->getMin(), v->getMax()));
+      v->setIndex(_space->addVariable(v->getVal(), v->getVal()));
+      v->setPosDeltaIndex(_space->addVariable(0, v->getMax() - v->getVal() + 1));
+      v->setNegDeltaIndex(_space->addVariable(0, v->getVal() - v->getMin() + 1));//crash
+      v->setTotalIndex(_space->addVariable(v->getMin(), v->getMax()));
 
-	}
-	// add constraints to space
-	for (map<int, LinearConstraint*>::iterator p = _constraintsMap->begin(); p != _constraintsMap->end(); p++)
-	{
-		(p->second)->addToSpace();
-	}
+    }
+  // add constraints to space
+  for (map<int, LinearConstraint*>::iterator p = _constraintsMap->begin(); p != _constraintsMap->end(); p++)
+    {
+      (p->second)->addToSpace();
+    }
 
-	//TODO: avant "LinExpr expr;"
-	LinExpr expr;
-	bool init=false;
+  //TODO: avant "LinExpr expr;"
+  LinExpr expr;
+  bool init=false;
 
-	// construct the linear combination of delta variables balanced by the weight associated with their type
-	for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
-	{
-		IntegerVariable *currVar = q->second;
+  // construct the linear combination of delta variables balanced by the weight associated with their type
+  for (map<int, IntegerVariable*>::iterator q = _integerVariablesMap->begin(); q != _integerVariablesMap->end(); q++)
+    {
+      IntegerVariable *currVar = q->second;
 
-		// add a delta variable for each beginning or length
-		int multiplier = 1;
+      // add a delta variable for each beginning or length
+      int multiplier = 1;
 
-		bool isStrong = false;
+      bool isStrong = false;
 
-		// give more weight to the edited variables
-		if (_suggest)
-		{
-			for (unsigned int i=0; i<_strongVars->size(); i++)
-				if (_strongVars->at(i) == q->first)
-				{
-					isStrong = true;
-					//multiplier = 10;
-					break;
-				}
-		}
+      // give more weight to the edited variables
+      if (_suggest)
+        {
+          for (unsigned int i=0; i<_strongVars->size(); i++)
+            if (_strongVars->at(i) == q->first)
+              {
+                isStrong = true;
+                //multiplier = 10;
+                break;
+              }
+        }
 
-		IntVarArgs vars(4);
-		IntArgs coeffs(4);
+      IntVarArgs vars(4);
+      IntArgs coeffs(4);
 
-		if (isStrong) {
-			vars[0] = _space->getIntVar(currVar->getTotalIndex());
-			vars[1] = _space->getIntVar(currVar->getIndex());
-			vars[2] = _space->getIntVar(currVar->getTotalIndex());
-			vars[3] = _space->getIntVar(currVar->getIndex());
+      if (isStrong) {
+          vars[0] = _space->getIntVar(currVar->getTotalIndex());
+          vars[1] = _space->getIntVar(currVar->getIndex());
+          vars[2] = _space->getIntVar(currVar->getTotalIndex());
+          vars[3] = _space->getIntVar(currVar->getIndex());
 
-			coeffs[0] = -1;
-			coeffs[1] = 1;
-			coeffs[2] = -1;
-			coeffs[3] = 1;
-		} else {
-			// constraint : <initial or wanted value> + <positive delta> - <negative delta> = <optimal value>
-			vars[0] = _space->getIntVar(currVar->getNegDeltaIndex());
-			vars[1] = _space->getIntVar(currVar->getPosDeltaIndex());
-			vars[2] = _space->getIntVar(currVar->getTotalIndex());
-			vars[3] = _space->getIntVar(currVar->getIndex());
-			coeffs[0] = -1;
-			coeffs[1] = 1;
-			coeffs[2] = 1;
-			coeffs[3] = -1;
-		}
+          coeffs[0] = -1;
+          coeffs[1] = 1;
+          coeffs[2] = -1;
+          coeffs[3] = 1;
+        } else {
+          // constraint : <initial or wanted value> + <positive delta> - <negative delta> = <optimal value>
+          vars[0] = _space->getIntVar(currVar->getNegDeltaIndex());
+          vars[1] = _space->getIntVar(currVar->getPosDeltaIndex());
+          vars[2] = _space->getIntVar(currVar->getTotalIndex());
+          vars[3] = _space->getIntVar(currVar->getIndex());
+          coeffs[0] = -1;
+          coeffs[1] = 1;
+          coeffs[2] = 1;
+          coeffs[3] = -1;
+        }
 
-		//TODO: avant "linear(_space, coeffs, vars, IRT_EQ, 0);"
-		linear(*_space, coeffs, vars, IRT_EQ, 0);
+      //TODO: avant "linear(_space, coeffs, vars, IRT_EQ, 0);"
+      linear(*_space, coeffs, vars, IRT_EQ, 0);
 
-		// construction of the objective function
-		if (!init)
-		{
-		//TODO: avant "expr = LinExpr(vars[0], currVar->getWeight()*multiplier);"
-			expr = LinExpr(vars[0], currVar->getWeight()*multiplier);
+      // construction of the objective function
+      if (!init)
+        {
+          //TODO: avant "expr = LinExpr(vars[0], currVar->getWeight()*multiplier);"
+          expr = LinExpr(vars[0], currVar->getWeight()*multiplier);
 
-			init = true;
+          init = true;
 
-			//TODO: avant "LinExpr tmp(vars[1], currVar->getWeight()*multiplier);"
-			LinExpr tmp(vars[1], currVar->getWeight()*multiplier);
+          //TODO: avant "LinExpr tmp(vars[1], currVar->getWeight()*multiplier);"
+          LinExpr tmp(vars[1], currVar->getWeight()*multiplier);
 
-			//TODO : je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
-			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
-		}
-		else
-		{
-			//TODO: avant "LinExpr tmp(vars[0], currVar->getWeight()*multiplier);"
-			LinExpr tmp(vars[0], currVar->getWeight()*multiplier);
+          //TODO : je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
+          expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
+        }
+      else
+        {
+          //TODO: avant "LinExpr tmp(vars[0], currVar->getWeight()*multiplier);"
+          LinExpr tmp(vars[0], currVar->getWeight()*multiplier);
 
-			//TODO: je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
-			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
+          //TODO: je ne sais pas : "expr = LinExpr(expr, tmp, 1);"
+          expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
 
-			//TODO: avant "tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);"
-			tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);
+          //TODO: avant "tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);"
+          tmp = LinExpr(vars[1], currVar->getWeight()*multiplier);
 
-			//TODO: je ne sas pas : "expr = LinExpr(expr, tmp, 1);"
-			expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
-		}
-	}
+          //TODO: je ne sas pas : "expr = LinExpr(expr, tmp, 1);"
+          expr = LinExpr(expr, Gecode::LinExpr::NT_ADD, tmp);
+        }
+    }
 
-	// the objective function is a linear combination of the delta variables (lengths are more important than beginnings)
-	_space->setObjFunc(Gecode::expr(*_space, expr));
+  // the objective function is a linear combination of the delta variables (lengths are more important than beginnings)
+  _space->setObjFunc(Gecode::expr(*_space, expr));
 }
 
 // edit some variables and try to reach the new values
@@ -491,8 +501,7 @@ Solver::run()
 		delete(ex);
 	}
 
-	delete ts;
-
+	delete ts;	
 	return last;
 }
 
@@ -528,4 +537,14 @@ Solver::getVariableMax(int varID ) const
 	if (var)
 		return var->getMax();
 	return -1;
+}
+
+void
+Solver::resetSpace(){
+  std::cout<<"RESETTTTTTTTTTTTTTTTTTTT"<<std::endl;
+  if(_lastSpace!=NULL){
+//    _space = (CustomSpace*)_lastSpace->clone(true);
+      _space = (CustomSpace*)_lastSpace;
+    updateState();
+    }
 }

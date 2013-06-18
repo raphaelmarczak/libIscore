@@ -98,8 +98,8 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 		throw IllegalArgumentException();
 	}
 
-	CSPConstrainedVariable *begin = new CSPConstrainedVariable(_solver->addIntVar(1, maxSceneWidth, boxBeginPos, (int)BEGIN_VAR_TYPE),
-			1, maxSceneWidth, boxBeginPos, BEGIN_VAR_TYPE);
+	CSPConstrainedVariable *begin = new CSPConstrainedVariable(_solver->addIntVar(0, maxSceneWidth, boxBeginPos, (int)BEGIN_VAR_TYPE),
+			0, maxSceneWidth, boxBeginPos, BEGIN_VAR_TYPE);
 //	CSPConstrainedVariable *length = new CSPConstrainedVariable(_solver->addIntVar(10, maxSceneWidth, (int)boxLength, (int)LENGTH_VAR_TYPE),
 //			10, maxSceneWidth, (int)boxLength, LENGTH_VAR_TYPE);
 
@@ -451,6 +451,7 @@ CSP::removeTemporalRelation(unsigned int relationId)
 bool
 CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification)
 {
+  std::cout<<"CSP::performMoving(x="<<x<<" y="<<y<<")"<<std::endl;
 	int *varsIDs = new int[3];
 	int *values = new int[3];
 	int newLength = y - x;
@@ -481,8 +482,8 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 	// *******************************************************************************************************************************
 
         if(oldLength != newLength){
-            //S'il s'agit d'un resize :
-            //  > on "unlock" la boîte après avoir mis à jour la nouvelle valeur de durée (car pour réouvrir le domaine on doit mettre le max à boxLength (TODO : à vérifier))
+            //Cas d'un resize :
+            //  > on "unlock" la boîte après avoir mis à jour la nouvelle valeur de durée (car pour réouvrir le domaine on doit mettre le min/max à boxLength)
             durationLocked = false;
 
             // ----------------------- unlocklockDuration ---------------------
@@ -532,6 +533,7 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 
 	movedBoxes.clear();
 	if (validSolution) {
+//	    std::cout<<"libIscore "<<boxesId<<" validSolution "<<x<<" "<<y<<std::endl;
 		updateFromSolver(); //TODO: la clef est ici !!!
 		map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
 		while (it != _cedEntities->end())
@@ -542,6 +544,7 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 
 		return true;
 	} else {
+//	    std::cout<<"libIscore : BOX"<<boxesId<<" "<<x/16.<<" --- NOT validSolution "<<std::endl;
 		return false;
 	}
 }
