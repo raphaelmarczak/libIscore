@@ -98,8 +98,8 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 		throw IllegalArgumentException();
 	}
 
-	CSPConstrainedVariable *begin = new CSPConstrainedVariable(_solver->addIntVar(0, maxSceneWidth, boxBeginPos, (int)BEGIN_VAR_TYPE),
-			0, maxSceneWidth, boxBeginPos, BEGIN_VAR_TYPE);
+	CSPConstrainedVariable *begin = new CSPConstrainedVariable(_solver->addIntVar(1, maxSceneWidth, boxBeginPos, (int)BEGIN_VAR_TYPE),
+			1, maxSceneWidth, boxBeginPos, BEGIN_VAR_TYPE);
 //	CSPConstrainedVariable *length = new CSPConstrainedVariable(_solver->addIntVar(10, maxSceneWidth, (int)boxLength, (int)LENGTH_VAR_TYPE),
 //			10, maxSceneWidth, (int)boxLength, LENGTH_VAR_TYPE);
 
@@ -122,7 +122,6 @@ CSP::addBox(unsigned int boxId, int boxBeginPos, int boxLength, unsigned int mot
 	// *******************************************************************************************************************************
 
 	ConstrainedBox *newBox = new ConstrainedBox(begin, length);
-
 
 	CSPConstrainedVariable *CP2begin = new CSPConstrainedVariable(_solver->addIntVar(1, maxSceneWidth, boxBeginPos + boxLength, (int)BEGIN_VAR_TYPE),
 			1, maxSceneWidth, boxBeginPos + boxLength, BEGIN_VAR_TYPE);
@@ -890,7 +889,6 @@ CSP::loadBoxes(xmlNodePtr root, std::map<unsigned int, CSP*>& boxesMap,
 					unsigned int boxBegin = XMLConversion::xmlCharToUnsignedInt(xmlBoxBegin);
 					unsigned int boxLength = XMLConversion::xmlCharToUnsignedInt(xmlBoxLength);
 					//unsigned int maxSceneWidth = XMLConversion::xmlCharToUnsignedInt(xmlBoxMaxSceneWidth);
-
 					if (m_boxId != ROOT_BOX_ID) {
 						addBox(m_boxId, boxBegin, boxLength, motherBox->getId(), motherBox->lengthValue());
 					}

@@ -541,7 +541,6 @@ Solver::getVariableMax(int varID ) const
 
 void
 Solver::resetSpace(){
-  std::cout<<"RESETTTTTTTTTTTTTTTTTTTT"<<std::endl;
   if(_lastSpace!=NULL){
 //    _space = (CustomSpace*)_lastSpace->clone(true);
       _space = (CustomSpace*)_lastSpace;
