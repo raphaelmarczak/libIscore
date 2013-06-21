@@ -450,7 +450,6 @@ CSP::removeTemporalRelation(unsigned int relationId)
 bool
 CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& movedBoxes, unsigned int maxModification)
 {
-  std::cout<<"CSP::performMoving(x="<<x<<" y="<<y<<")"<<std::endl;
 	int *varsIDs = new int[3];
 	int *values = new int[3];
 	int newLength = y - x;
@@ -532,7 +531,6 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 
 	movedBoxes.clear();
 	if (validSolution) {
-//	    std::cout<<"libIscore "<<boxesId<<" validSolution "<<x<<" "<<y<<std::endl;
 		updateFromSolver(); //TODO: la clef est ici !!!
 		map<unsigned int, ConstrainedTemporalEntity*>::iterator it  = _cedEntities->begin();
 		while (it != _cedEntities->end())
@@ -543,7 +541,6 @@ CSP::performMoving(unsigned int boxesId, int x, int y, vector<unsigned int>& mov
 
 		return true;
 	} else {
-//	    std::cout<<"libIscore : BOX"<<boxesId<<" "<<x/16.<<" --- NOT validSolution "<<std::endl;
 		return false;
 	}
 }

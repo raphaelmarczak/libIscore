@@ -316,7 +316,6 @@ int Editor::getRelationMaxBound(unsigned int relationId)
 
 bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int>& movedBoxes, int maxModification)
 {
-  std::cout<<"Editor::performMoving(x="<<x<<" y="<<y<<")"<<std::endl;
   if(x>=0){
 	CSP* containingCSP = m_boxIdToContainingCSP[boxId];
 	ConstrainedBox* currentBox = containingCSP->getBoxById(boxId);
@@ -400,7 +399,6 @@ bool Editor::performMoving(unsigned int boxId, int x, int y, vector<unsigned int
 	}
     }
   else{
-      std::cout<<"libIscore::Editor NOT ACCEPTED (<0)"<<std::endl;
       return false;
     }
 }

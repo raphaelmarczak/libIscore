@@ -278,8 +278,6 @@ Solver::updateState()
       delete _space;
       _space = NULL;
     }
-  else
-    std::cout<<"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! no space !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
 
   _space = new CustomSpace();
 
